@@ -1,4 +1,4 @@
-package com.filrouge.hoverleap;
+package com.filrouge.leaphover;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class HoverLeap implements ApplicationListener {
+public class LeapHover implements ApplicationListener {
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private Texture texture;
@@ -43,7 +43,7 @@ public class HoverLeap implements ApplicationListener {
 
 	@Override
 	public void render() {		
-		Gdx.gl.glClearColor(1, 0, 1, 1);
+		Gdx.gl.glClearColor(1, 1, 0, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		batch.setProjectionMatrix(camera.combined);

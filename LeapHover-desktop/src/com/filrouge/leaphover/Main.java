@@ -1,7 +1,8 @@
-package com.filrouge.hoverleap;
+package com.filrouge.leaphover;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.filrouge.leaphover.LeapHover;
 
 public class Main {
 	public static void main(String[] args) {
@@ -11,6 +12,6 @@ public class Main {
 		cfg.width = 480;
 		cfg.height = 320;
 		
-		new LwjglApplication(new HoverLeap(), cfg);
+		new LwjglApplication(new LeapHover(), cfg);
 	}
 }

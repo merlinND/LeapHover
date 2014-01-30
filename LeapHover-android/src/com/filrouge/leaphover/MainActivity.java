@@ -1,9 +1,10 @@
-package com.filrouge.hoverleap;
+package com.filrouge.leaphover;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.filrouge.leaphover.HoverLeap;
 
 public class MainActivity extends AndroidApplication {
     @Override
