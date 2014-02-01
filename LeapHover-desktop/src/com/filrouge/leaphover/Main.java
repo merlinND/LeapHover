@@ -9,8 +9,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "LeapHover";
 		cfg.useGL20 = false;
-		cfg.width = 800;
-		cfg.height = 600;
+		cfg.width = 1024;
+		cfg.height = 768;
 		
 		new LwjglApplication(new LeapHover(), cfg);
 	}
