@@ -10,8 +10,15 @@ public class HillGenerator {
 	/*
 	 * PROPERTIES
 	 */
+	protected static final int NUMBER_OF_SAMPLES = 100;
 	protected static final int MIN_CONTROL_POINTS = 3;
 	protected static final int MAX_CONTROL_POINTS = 15;
+	/**
+	 * Roughness of the generated hills.
+	 * The smaller this number, the rougher the hills.
+	 * TODO: make parametrizable
+	 */
+	protected static float roughness = 0.7f;
 	
 	/* 
 	 * METHODS
@@ -42,7 +49,7 @@ public class HillGenerator {
 		ArrayList<Vector2> controlPoints = getRandomControlPoints(-width / 2f, width / 2f, 0, height);
 		
 		// TODO : choose the number of samples in a smart way (proportional to the number of control points ?)
-		int n = 100;
+		int n = NUMBER_OF_SAMPLES;
 		BSCurve curve = new BSCurve(controlPoints);
 		Vector2[] vertices = curve.getSamples(n);
 		
@@ -82,7 +89,9 @@ public class HillGenerator {
 	 * @return
 	 */
 	protected static ArrayList<Vector2> getRandomControlPoints(float xMin, float xMax, float yMin, float yMax) {
-		return getRandomControlPoints((int) random(MIN_CONTROL_POINTS, MAX_CONTROL_POINTS), xMin, xMax, yMin, yMax);
+		int n = (int) random(MIN_CONTROL_POINTS, MAX_CONTROL_POINTS);
+		n = (n % 2 == 0 ? n+1 : n); // Make sure n is odd
+		return getRandomControlPoints(n, xMin, xMax, yMin, yMax);
 	}
 	/**
 	 * Return homogeneously horizontally spaced control points. 
@@ -95,26 +104,57 @@ public class HillGenerator {
 	 * @return
 	 */
 	protected static ArrayList<Vector2> getRandomControlPoints(int n, float xMin, float xMax, float yMin, float yMax) {
-		ArrayList<Vector2> controlPoints = new ArrayList<Vector2>();
+		// Our working array
+		Vector2[] points = new Vector2[n];
 		
-		
-		// Generate n random control points (equally spaced)
-		Vector2 current = new Vector2();
+		// Generate n equally horizontally spaced points
+		// all at yMin vertical position
 		float delta = 1 / (float)(n - 1);
 		float alpha = 0;		
 		for (int i = 0; i < n; ++i) {
-			current.set(progress(xMin, xMax, alpha), random(yMin, yMax));
+			points[i] = new Vector2(progress(xMin, xMax, alpha), 0);
 			alpha += delta;
-			
-			// The first and last point must be interpolated strongly
-			controlPoints.add(current.cpy());
-			if (i == 0 || i == (n-1)) {
-				controlPoints.add(current.cpy());
-				controlPoints.add(current.cpy());
-			}
 		}
 		
+		// Apply midpoint displacement algorithm
+		float range = ((yMax - yMin) / 2f);
+		applyMidpointDisplacement(points, 0, n, range, 0);
+		
+		// Create output
+		ArrayList<Vector2> controlPoints = new ArrayList<Vector2>();
+		for (int i = 0; i < n; ++i) {
+			controlPoints.add(points[i]);
+			// The first and last point must be interpolated strongly
+			if (i == 0 || i == (n-1)) {
+				controlPoints.add(points[i].cpy());
+				controlPoints.add(points[i].cpy());
+			}
+		}		
 		return controlPoints;
+	}
+	
+	/**
+	 * Apply the vertical midpoint displacement algorithm to the given points.
+	 * Only points between iMin and iMax indices are displaced.
+	 * @param points
+	 * @param iMin
+	 * @param iMax
+	 * @param range The maximum random displacement to be applied to the midpoint
+	 * @param offset A constant displacement to apply to all points
+	 */
+	protected static void applyMidpointDisplacement(Vector2[] points, int iMin, int iMax, float range, float offset) {
+		if (iMin < iMax) {
+			int middle = ((iMax - iMin) / 2) + iMin;
+			// Displace middle point
+			float displacement = random(0, range);
+			points[middle].y += displacement + offset;
+			
+			// Recursively call to displace the next two midpoints
+			range /= Math.pow(2, roughness);
+			offset += (displacement / 2f);
+			applyMidpointDisplacement(points, iMin, middle, range, offset);
+			applyMidpointDisplacement(points, middle + 1, iMax, range, offset);
+		}
 	}
 	
 	/**
