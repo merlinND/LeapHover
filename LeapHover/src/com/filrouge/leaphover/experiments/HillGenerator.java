@@ -10,9 +10,9 @@ public class HillGenerator {
 	/*
 	 * PROPERTIES
 	 */
-	protected static final int NUMBER_OF_SAMPLES = 100;
+	protected static final int NUMBER_OF_SAMPLES = 50;
 	protected static final int MIN_CONTROL_POINTS = 3;
-	protected static final int MAX_CONTROL_POINTS = 15;
+	protected static final int MAX_CONTROL_POINTS = 500;
 	/**
 	 * Roughness of the generated hills.
 	 * The smaller this number, the rougher the hills.
@@ -26,7 +26,7 @@ public class HillGenerator {
 	
 	/**
 	 * Add fixtures to the given body so as to make a hill (no underside).
-	 * The hill spans from (-width/2) to (width/2) horizontally
+	 * The hill spans from 0 to width horizontally
 	 * and from 0 to height vertically.
 	 * @param body
 	 * @param width 
@@ -46,7 +46,7 @@ public class HillGenerator {
 	public static void makeHill(Body body, float width, float height, float thickness) {
 		
 		// Test control points (at least this.degree)
-		ArrayList<Vector2> controlPoints = getRandomControlPoints(-width / 2f, width / 2f, 0, height);
+		ArrayList<Vector2> controlPoints = getRandomControlPoints(0, width, 0, height);
 		
 		// TODO : choose the number of samples in a smart way (proportional to the number of control points ?)
 		int n = NUMBER_OF_SAMPLES;
@@ -59,7 +59,7 @@ public class HillGenerator {
 		// Top side
 		for(int i = 1; i < n; ++i) {
 			shape.set(previous, vertices[i]);
-			body.createFixture(shape, 1);
+			body.createFixture(shape, 0);
 			
 			previous = vertices[i];
 		}
@@ -70,7 +70,7 @@ public class HillGenerator {
 			for(int i = n - 2; i >= 0; --i) {
 				vertices[i].add(thicknessVector);
 				shape.set(previous, vertices[i]);
-				body.createFixture(shape, 1);
+				body.createFixture(shape, 0);
 				
 				previous = vertices[i];
 			}
@@ -89,7 +89,13 @@ public class HillGenerator {
 	 * @return
 	 */
 	protected static ArrayList<Vector2> getRandomControlPoints(float xMin, float xMax, float yMin, float yMax) {
-		int n = (int) random(MIN_CONTROL_POINTS, MAX_CONTROL_POINTS);
+		// Compute n so as to have a constant horizontal density of control points
+		
+		int n = (int) ( (xMax - xMin) * 3f);
+		System.out.println("Generating a hill with " + n + " control points.");
+		n = (n < MIN_CONTROL_POINTS ? MIN_CONTROL_POINTS : n);
+		n = (n > MAX_CONTROL_POINTS ? MAX_CONTROL_POINTS : n);
+		
 		n = (n % 2 == 0 ? n+1 : n); // Make sure n is odd
 		return getRandomControlPoints(n, xMin, xMax, yMin, yMax);
 	}
@@ -123,12 +129,17 @@ public class HillGenerator {
 		// Create output
 		ArrayList<Vector2> controlPoints = new ArrayList<Vector2>();
 		for (int i = 0; i < n; ++i) {
-			controlPoints.add(points[i]);
 			// The first and last point must be interpolated strongly
 			if (i == 0 || i == (n-1)) {
+				// Force first and last control points to minimal position
+				// TODO : remove that
+				points[i].y = 0;
+				controlPoints.add(points[i]);
 				controlPoints.add(points[i].cpy());
 				controlPoints.add(points[i].cpy());
 			}
+			else
+				controlPoints.add(points[i]);
 		}		
 		return controlPoints;
 	}
