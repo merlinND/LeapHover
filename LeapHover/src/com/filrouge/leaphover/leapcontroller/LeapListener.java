@@ -1,10 +1,9 @@
 package com.filrouge.leaphover.leapcontroller;
 
-// Listening leap events...
-public interface LeapListener {
-	
-	/*
-	 *  Method(s)
-	 */
-	public void event(); // One method for each event?
+import com.badlogic.gdx.InputProcessor;
+
+public interface LeapListener extends InputProcessor
+{
+	// Method(s)
+	public boolean handPosition(int percent);
 }
