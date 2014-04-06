@@ -4,8 +4,9 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/LeapHover"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry exported="true" kind="lib" path="/HoverLeap/libs/gdx.jar" sourcepath="/HoverLeap/libs/gdx-sources.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/gdx-backend-android.jar" sourcepath="libs/gdx-backend-android-sources.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="/Users/remimartin/Downloads/libgdx-0/gdx-backend-android.jar"/>
+	<classpathentry kind="lib" path="/Users/remimartin/Downloads/libgdx-0/gdx.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
