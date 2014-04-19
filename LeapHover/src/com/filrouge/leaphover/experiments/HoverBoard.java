@@ -3,12 +3,8 @@ package com.filrouge.leaphover.experiments;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
-import com.filrouge.leaphover.LeapHover;
-import com.filrouge.leaphover.leapcontroller.LeapListener;
 
 public class HoverBoard {
 	public static float MAX_JUMP_FORCE = 0.2f;
