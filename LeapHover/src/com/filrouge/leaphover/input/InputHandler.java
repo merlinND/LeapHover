@@ -1,5 +1,8 @@
 package com.filrouge.leaphover.input;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
@@ -18,6 +21,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	protected int numberOfLeapSamples = 0;
 	/** Used to accumulate received hand heights and then compute an average */
 	protected int percentSum = 0;
+	
+	protected List<Float> inclinationSamples = new ArrayList<Float>();
+	protected final int MAX_SAMPLE_NUMBER = 15;
 	
 	/* 
 	 * METHODS
@@ -38,6 +44,21 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	public void makeJump(float amount) {
 		Vector2 force = new Vector2(0, (amount * HoverBoard.MAX_JUMP_FORCE) / 100);
 		game.getHero().applyForce(force, game.getHero().getPosition(), true);
+	}
+	
+	public void makeInclination(float angle) {
+		// Smooth over the last few frames
+		inclinationSamples.add(angle);
+		if (inclinationSamples.size() > MAX_SAMPLE_NUMBER)
+			inclinationSamples.remove(0);
+		
+		float targetAngle = 0;
+		for (Float a : inclinationSamples)
+			targetAngle += a;
+		targetAngle /= (float)inclinationSamples.size();
+		
+		game.setHeroInclination(targetAngle);
+		System.out.println("Hero inclination : " + targetAngle + "rad.");
 	}
 	
 	
@@ -71,7 +92,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	}
 
 	public boolean handInclination(float percent) {
-		//System.out.println("Hand inclination : " + percent + "%.");
+		float targetAngle = (1.5f - percent) * (float)Math.PI;
+		makeInclination(targetAngle);
 		
 		return false;
 	}

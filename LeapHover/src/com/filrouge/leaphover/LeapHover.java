@@ -37,6 +37,9 @@ public class LeapHover implements ApplicationListener {
 	protected Body hero;
 	protected HoverBoard hoverBoard;
 	
+	protected final float INITIAL_HERO_INCLINATION = 0f;
+	protected float heroInclination = INITIAL_HERO_INCLINATION;
+	
 	/* 
 	 * METHODS
 	 */
@@ -90,12 +93,12 @@ public class LeapHover implements ApplicationListener {
 	public void render() {		
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		//hero.applyForce(GRAVITY.cpy().scl(-1f), applicationPoint, false);
+
+		hero.setTransform(hero.getPosition(), getHeroInclination());
 		
 		// If hero gets off screen, reset its position
 		if (hero.getPosition().y < -0.5f) {
-			hero.setTransform(0.1f, camera.viewportHeight, 0f);
+			hero.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
 			hero.setLinearVelocity(new Vector2(0f, 0f));
 			hero.setAngularVelocity(0);
 		}
@@ -145,5 +148,10 @@ public class LeapHover implements ApplicationListener {
 		this.hero = hero;
 	}
 
-	
+	public float getHeroInclination() {
+		return heroInclination;
+	}
+	public void setHeroInclination(float heroInclination) {
+		this.heroInclination = heroInclination;
+	}
 }
