@@ -37,7 +37,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	public void makeJump(float amount) {
 		Vector2 force = new Vector2(0, (amount * HoverBoard.MAX_JUMP_FORCE) / 100);
-		game.getHero().applyForce(force, game.getHero().getPosition(), false);
+		game.getHero().applyForce(force, game.getHero().getPosition(), true);
 	}
 	
 	
@@ -46,28 +46,28 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	@Override
 	public boolean handHeight(int percent) {
-			// TODO: only allow jumping if not already mid-air
-			// TODO: make jump perpendicular to the hero, not always vertical
-		
-			// Trigger jump
-			if(percent >= 50 && this.numberOfLeapSamples > 0) {
-				float averageHeight = this.percentSum / this.numberOfLeapSamples;
-				
-				// [100, 61] --> [0.2, 0]
-				makeJump(averageHeight);
-
-				// Reset counters for next jump
-				this.percentSum = 0;
-				this.numberOfLeapSamples = 0;
-			}
-			// Accumulate "force"
-			else if(percent < 40) {
-				// [0;39] --> [100, 61]
-				this.percentSum += 100 - percent;
-				++this.numberOfLeapSamples;
-			}
+		// TODO: only allow jumping if not already mid-air
+		// TODO: make jump perpendicular to the hero, not always vertical
+	
+		// Trigger jump
+		if(percent >= 50 && this.numberOfLeapSamples > 0) {
+			float averageHeight = this.percentSum / this.numberOfLeapSamples;
 			
-			return false;
+			// [100, 61] --> [0.2, 0]
+			makeJump(averageHeight);
+
+			// Reset counters for next jump
+			this.percentSum = 0;
+			this.numberOfLeapSamples = 0;
+		}
+		// Accumulate "force"
+		else if(percent < 40) {
+			// [0;39] --> [100, 61]
+			this.percentSum += 100 - percent;
+			++this.numberOfLeapSamples;
+		}
+		
+		return false;
 	}
 
 	/* -----------------------
@@ -75,8 +75,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	@Override
 	public boolean keyDown(int keycode) {
-		System.out.println(keycode);
-		
 		// Accumulate "force"
 		if(Input.Keys.DOWN == keycode) {
 			this.time++;
