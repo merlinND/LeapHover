@@ -108,6 +108,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		// Accumulate "force"
 		if(Input.Keys.DOWN == keycode) {
 			this.time++;
+		} else if(Input.Keys.ENTER == keycode) {
+			game.retryLevel();
 		}
 		return false;
 	}

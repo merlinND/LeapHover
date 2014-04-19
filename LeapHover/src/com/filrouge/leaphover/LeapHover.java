@@ -4,7 +4,10 @@ import java.util.concurrent.Callable;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -45,7 +48,12 @@ public class LeapHover implements ApplicationListener {
 	protected float heroInclination = INITIAL_HERO_INCLINATION;
 	
 	/** When this flag is up, restart the level */
-	protected boolean retryFlag = false;
+	protected boolean paused = false;
+	protected boolean lost = false;
+	
+	/** Score when the user loose the game */
+	protected double score = 0;
+	
 	
 	/**
 	 * Contact handler (detect collisions of the character with the environment)
@@ -105,6 +113,9 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void retryLevel() {
+		this.paused = false;
+		this.lost = false;
+		
 		setHeroInclination(INITIAL_HERO_INCLINATION);
 		Body heroBody = this.hero.getBody();
 		heroBody.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
@@ -112,8 +123,9 @@ public class LeapHover implements ApplicationListener {
 		heroBody.setAngularVelocity(0);
 	}
 	public void loseGame() {
-		System.out.println("You lost the game.");
-		retryFlag = true;
+		this.score = Math.pow(this.hero.getPosition().x, 1.2);
+		this.paused = true;
+		this.lost = true;
 	}
 	
 	@Override
@@ -125,27 +137,38 @@ public class LeapHover implements ApplicationListener {
 	public void render() {		
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-
-		Body heroBody = hero.getBody();
-		float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
-		heroBody.setTransform(hero.getPosition(), angle);
 		
 		// If hero gets off screen, reset its position
-		if (retryFlag || hero.getPosition().y < -0.5f) {
+		if (hero.getPosition().y < -0.5f) {
 			retryLevel();
-			retryFlag = false;
 		}
 		
-		//heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
 		// Limit speed
 		//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
-		hero.render();
-			
+		
 		// Follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
-		
 		debugRenderer.render(world, camera.combined);
-		world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
+
+		if(!this.paused) {
+			Body heroBody = hero.getBody();
+			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
+			heroBody.setTransform(hero.getPosition(), angle);
+			
+			heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
+			hero.render();
+			
+			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
+		}
+		if (this.lost) {
+			BitmapFont font = new BitmapFont();
+			font.setScale(3f);
+			String str="You lost the game. Your scored : " + Math.round(this.score) + " points.";
+			SpriteBatch spriteBatch = new SpriteBatch();
+			spriteBatch.begin();
+			font.draw(spriteBatch, str, 100, 100);
+			spriteBatch.end();
+		}
 	}
 
 	@Override
