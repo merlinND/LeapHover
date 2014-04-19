@@ -45,12 +45,12 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 * LEAP EVENTS
 	 */
 	@Override
-	public boolean handHeight(int percent) {
+	public boolean handHeight(float percent) {
 		// TODO: only allow jumping if not already mid-air
 		// TODO: make jump perpendicular to the hero, not always vertical
-	
+		
 		// Trigger jump
-		if(percent >= 50 && this.numberOfLeapSamples > 0) {
+		if(percent >= 0.5 && this.numberOfLeapSamples > 0) {
 			float averageHeight = this.percentSum / this.numberOfLeapSamples;
 			
 			// [100, 61] --> [0.2, 0]
@@ -61,7 +61,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			this.numberOfLeapSamples = 0;
 		}
 		// Accumulate "force"
-		else if(percent < 40) {
+		else if(percent < 0.4) {
 			// [0;39] --> [100, 61]
 			this.percentSum += 100 - percent;
 			++this.numberOfLeapSamples;
@@ -70,6 +70,12 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 
+	public boolean handInclination(float percent) {
+		//System.out.println("Hand inclination : " + percent + "%.");
+		
+		return false;
+	}
+	
 	/* -----------------------
 	 * KEYBOARD EVENTS
 	 */

@@ -1,5 +1,8 @@
 package com.filrouge.leaphover.leapcontroller;
 
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Listener;
 
 /**
@@ -12,14 +15,14 @@ public abstract class LeapListener extends Listener
 	protected final double MAX_HAND_ANGLE = 0.2;
 	
 	protected final double MIN_HAND_INCLINATION = 0.5;
-	protected final double MAX_HAND_INCLINATION = 2.8;
+	protected final double MAX_HAND_INCLINATION = 3.2;
 	
 	@Override
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
-		
-		int maxHeight = (int)frame.interactionBox().height();
 
+		float maxHeight = frame.interactionBox().height();
+		
 		/*
 		 * Hand up/down movement 
 		 */
@@ -36,12 +39,11 @@ public abstract class LeapListener extends Listener
 		    		float y = hand.palmPosition().get(1);
 		    		y = Math.min(y, maxHeight);
 		    		
-		    		int percent = (int) ((y / maxHeight) * 100);
-		    		handHeight(percent);
+		    		handHeight(y / maxHeight);
 		    	}
 		    	
 		    	float angle = - hand.palmNormal().pitch();
-		    	handInclination(angle / (float)(MAX_HAND_ANGLE - MIN_HAND_ANGLE));
+		    	handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
 		    }
 		}
 	}
@@ -50,5 +52,16 @@ public abstract class LeapListener extends Listener
 	 * Process variations of one hand's height
 	 * @param percent
 	 */
-	public abstract boolean handHeight(int percent);
+	public boolean handHeight(float percent) {
+		return false;
+	}
+	
+	/**
+	 * Process variations of one hand's inclination
+	 * @param percent of rotation with repspect to the negative z-axis ("pitch")
+	 * @return
+	 */
+	public boolean handInclination(float percent) {
+		return false;
+	}
 }

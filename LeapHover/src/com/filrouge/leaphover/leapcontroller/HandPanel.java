@@ -30,10 +30,10 @@ public class HandPanel extends JPanel {
     }
 	
 	public LeapListener leapListener = new LeapListener() {
-		public boolean handHeight(int percent) {
-			System.out.println(percent);
+		public boolean handHeight(float percent) {
+			System.out.println("Hand is at " + percent + "% of the maximum height");
 			percent = 100-percent;
-			label.setBounds(200, 500*percent/100, 50, 50);
+			label.setBounds(200, 500 * (int)percent / 100, 50, 50);
 			repaint();
 			return false;
 		}
