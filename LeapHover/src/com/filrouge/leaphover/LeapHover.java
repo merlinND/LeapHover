@@ -8,10 +8,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.experiments.FollowCamera;
 import com.filrouge.leaphover.experiments.HillGenerator;
+import com.filrouge.leaphover.experiments.HoverBoard;
+import com.filrouge.leaphover.leapcontroller.LeapHandler;
+import com.leapmotion.leap.Controller;
 
 public class LeapHover implements ApplicationListener {
 	protected World world;
@@ -31,9 +33,14 @@ public class LeapHover implements ApplicationListener {
 	
 	/** A reference to the main character (for testing purpose) */
 	protected Body hero;
+	protected HoverBoard hoverBoard;
+	
+	/** LEAP **/
+	protected LeapHandler listener;
+    protected Controller controller;
 	
 	@Override
-	public void create() {		
+	public void create() {	
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		
@@ -66,14 +73,20 @@ public class LeapHover implements ApplicationListener {
 		// Falling box
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
 		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
-		hero = world.createBody(bodyDefinition);
 		
 		float side = camera.viewportHeight / 20f;
-		PolygonShape polygonShape = new PolygonShape();
-		polygonShape.setAsBox(side, side);
-		hero.createFixture(polygonShape, 1);
 		
-		polygonShape.dispose();
+		this.hoverBoard = new HoverBoard(bodyDefinition, this.world, side);
+		this.hero = this.hoverBoard.getHero();
+		
+		// Create a sample listener and controller
+        this.listener = new LeapHandler();
+        this.controller = new Controller();
+
+        // Have the sample listener receive events from the controller
+        controller.addListener(this.listener);
+        this.listener.addListener(this.hoverBoard);
+        
 	}
 	
 	@Override
@@ -86,8 +99,6 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		Vector2 applicationPoint = hero.getPosition();
-		
 		//hero.applyForce(GRAVITY.cpy().scl(-1f), applicationPoint, false);
 		
 		// If hero gets off screen, reset its position
@@ -99,7 +110,8 @@ public class LeapHover implements ApplicationListener {
 		
 		// Limit speed
 		//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
-		hero.applyForce(new Vector2(0.003f, 0), applicationPoint, false);
+		
+		this.hoverBoard.render();
 			
 		// Follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
@@ -114,9 +126,13 @@ public class LeapHover implements ApplicationListener {
 
 	@Override
 	public void pause() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void resume() {
+		// TODO Auto-generated method stub
+		
 	}
 }

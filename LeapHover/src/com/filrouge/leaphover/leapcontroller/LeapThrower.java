@@ -10,7 +10,7 @@ public class LeapThrower extends Listener {
 	 * Attribute(s)
 	 */
 	private ArrayList<LeapListener> listeners = new ArrayList<LeapListener>();
-	private int tailleMax;
+	private int maxHeight;
 	
 	/*
 	 *  Method(s)
@@ -86,7 +86,7 @@ public class LeapThrower extends Listener {
         // Get the most recent frame and report some basic information
         Frame frame = controller.frame();
 
-        tailleMax=(int)frame.interactionBox().height();
+        maxHeight=(int)frame.interactionBox().height();
         if (!frame.hands().isEmpty()) {
             // Get the first hand
         	// TODO : Recognize what hand it is
@@ -100,8 +100,8 @@ public class LeapThrower extends Listener {
             	// "Flat" hand
             	if(Math.abs(normalX) < 0.2 && Math.abs(normalX) > 0) {
             		float positionY = hand.palmPosition().get(1);
-            		positionY = (positionY < tailleMax) ? positionY : tailleMax;
-            		handPosition((int) ((positionY/tailleMax)*100));
+            		positionY = (positionY < maxHeight) ? positionY : maxHeight;
+            		handPosition((int) ((positionY/maxHeight)*100));
             	}
             }
         }
