@@ -1,0 +1,13 @@
+*.class
+*.classpath
+
+# Libs
+*.dylib
+*/lib/*
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+.DS_Store

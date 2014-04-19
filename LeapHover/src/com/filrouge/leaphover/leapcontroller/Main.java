@@ -17,12 +17,12 @@ public class Main {
 		frame.setVisible(true);
 		
 		// Create a sample listener and controller
-        LeapHandler listener = new LeapHandler();
+        LeapThrower listener = new LeapThrower();
         Controller controller = new Controller();
 
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
-        listener.addListener(panel);
+        listener.addListener(panel.leapListener);
 
         // Keep this process running until Enter is pressed
         System.out.println("Press Enter to quit...");

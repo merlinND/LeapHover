@@ -14,10 +14,12 @@ import com.filrouge.leaphover.experiments.BodyCollision;
 import com.filrouge.leaphover.experiments.FollowCamera;
 import com.filrouge.leaphover.experiments.HillGenerator;
 import com.filrouge.leaphover.experiments.HoverBoard;
-import com.filrouge.leaphover.leapcontroller.LeapHandler;
-import com.leapmotion.leap.Controller;
 
 public class LeapHover implements ApplicationListener {
+	
+	/*
+	 * PROPERTIES
+	 */
 	protected World world;
 	
 	protected float worldWidth = 20f;
@@ -37,10 +39,9 @@ public class LeapHover implements ApplicationListener {
 	protected Body hero;
 	protected HoverBoard hoverBoard;
 	
-	/** LEAP **/
-	protected LeapHandler listener;
-    protected Controller controller;
-	
+	/* 
+	 * METHODS
+	 */
 	@Override
 	public void create() {	
 		float w = Gdx.graphics.getWidth();
@@ -77,19 +78,10 @@ public class LeapHover implements ApplicationListener {
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
 		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
 		
-		float side = camera.viewportHeight / 20f;
+		float side = camera.viewportHeight / 50f;
 		
 		this.hoverBoard = new HoverBoard(bodyDefinition, this.world, side);
 		this.hero = this.hoverBoard.getHero();
-		
-		// Create a sample listener and controller
-        this.listener = new LeapHandler();
-        this.controller = new Controller();
-
-        // Have the sample listener receive events from the controller
-        controller.addListener(this.listener);
-        this.listener.addListener(this.hoverBoard);
-        
 	}
 	
 	@Override
@@ -138,4 +130,23 @@ public class LeapHover implements ApplicationListener {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	/*
+	 * GETTERS & SETTERS
+	 */
+	public World getWorld() {
+		return world;
+	}
+	public void setWorld(World world) {
+		this.world = world;
+	}
+
+	public Body getHero() {
+		return hero;
+	}
+	public void setHero(Body hero) {
+		this.hero = hero;
+	}
+
+	
 }
