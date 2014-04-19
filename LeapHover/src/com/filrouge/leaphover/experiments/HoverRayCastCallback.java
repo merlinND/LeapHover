@@ -9,10 +9,12 @@ public class HoverRayCastCallback implements RayCastCallback {
 	private float distance = Float.MAX_VALUE;
 	private Body board;
 	private Hero hoverboard;
+	private Vector2 position;
 	
 	public HoverRayCastCallback(Body board, Hero hoverboard, Vector2 position) {
 		this.board = board;
 		this.hoverboard = hoverboard;
+		this.position=position;
 	}
 	
 	/**
@@ -23,11 +25,11 @@ public class HoverRayCastCallback implements RayCastCallback {
 	public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal,
 			float fraction) {
 		
-		float dist = this.board.getWorldCenter().dst(point);
+		float dist = position.dst(point);
 		//System.out.println(dist);
 		if(dist < distance) {
 			distance = dist;
-			this.hoverboard.spring();
+			this.hoverboard.spring(this.position, this);
 		}
 		return 0;
 	}

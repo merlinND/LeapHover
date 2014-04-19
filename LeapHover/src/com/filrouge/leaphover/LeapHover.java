@@ -94,7 +94,7 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		Body heroBody = hero.getBody();
-		heroBody.setTransform(hero.getPosition(), getHeroInclination());
+		//heroBody.setTransform(hero.getPosition(), getHeroInclination());
 		
 		// If hero gets off screen, reset its position
 		if (hero.getPosition().y < -0.5f) {
