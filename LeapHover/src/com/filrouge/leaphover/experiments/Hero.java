@@ -13,6 +13,7 @@ public class Hero {
 	
 	protected Body body;
 	protected Fixture board, character;
+	protected float boardWidth;
 	
 	protected HoverRayCastCallback callbackFront;
 	protected HoverRayCastCallback callbackBack;
@@ -21,11 +22,12 @@ public class Hero {
 	
 	public Hero(BodyDef bodyDefinition, World world, float side) {
 		this.body = world.createBody(bodyDefinition);
+		this.boardWidth = side * 3.5f;
 		
 		PolygonShape polygonShape = new PolygonShape();
 		// Create board
 		float boardHeight = side;
-		polygonShape.setAsBox(side * 3.5f, boardHeight);
+		polygonShape.setAsBox(this.boardWidth, side);
 		board = body.createFixture(polygonShape, 1);
 		
 		// Create character
@@ -40,35 +42,39 @@ public class Hero {
 	
 	public void render() {
 		//make the ray at least as long as the target distance
-		Vector2 startOfRay = this.body.getPosition();
-		Vector2 endOfRay = new Vector2(0,-5);
+		Vector2 startOfRay = this.body.getWorldCenter();
+		float angle = this.body.getAngle();
 		
-		Vector2 front = new Vector2(startOfRay).add(0, 0);
-		Vector2 bottom = new Vector2(endOfRay).add(0, 0);
+		Vector2 front = new Vector2(startOfRay).add((float) (this.boardWidth/2*Math.cos(angle)), 
+													(float) (this.boardWidth/2*Math.sin(angle)));
+		Vector2 back = new Vector2(startOfRay).add((float) (this.boardWidth/2*Math.cos(angle)*-1), 
+													(float) (this.boardWidth/2*Math.sin(angle)*-1));
 		
-//		callbackFront = new HoverRayCastCallback(body, this, front);
-//		body.getWorld().rayCast(callbackFront, front, endOfRay);
-//		callbackBack = new HoverRayCastCallback(body, this, bottom);
-//		body.getWorld().rayCast(callbackBack, bottom, endOfRay);
+		Vector2 endOfRayFront = new Vector2(front.x,-5);
+		Vector2 endOfRayBack = new Vector2(back.x,-5);
+		
+		callbackFront = new HoverRayCastCallback(body, this, front);
+		body.getWorld().rayCast(callbackFront, front, endOfRayFront);
+		callbackBack = new HoverRayCastCallback(body, this, back);
+		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 	}
 	
-	public void spring() {
-		float targetHeight = 0.2f;
+	public void spring(Vector2 position, HoverRayCastCallback callback) {
+		float targetHeight = 0.1f;
 		float springConstant = 0.1f;
   
 		
 		// http://www.iforce2d.net/b2dtut/suspension
-		float distanceAboveGround = this.callbackFront.getDistance();
+		float distanceAboveGround = callback.getDistance();
 		while(distanceAboveGround == Float.MAX_VALUE);
 		
 		if (distanceAboveGround != Float.MAX_VALUE) {
 			if(distanceAboveGround < targetHeight) {
-				body.applyForce(body.getWorld().getGravity().mul(body.getMass()),
-						body.getWorldCenter(), true);
+				//body.applyForce(body.getWorld().getGravity().mul(body.getMass()), body.getWorldCenter(), true);
 				distanceAboveGround += 0.25f * body.getLinearVelocity().y;
 				float distanceAwayFromTargetHeight = targetHeight - distanceAboveGround;
 				Vector2 force = new Vector2(0.001f, springConstant*distanceAwayFromTargetHeight);
-				body.applyForce(force, body.getWorldCenter(), true);
+				body.applyForce(force, position, true);
 			}
 		}
 	}
