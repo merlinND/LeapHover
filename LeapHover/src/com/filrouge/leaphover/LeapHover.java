@@ -8,7 +8,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
+import com.filrouge.leaphover.experiments.BodyCollision;
 import com.filrouge.leaphover.experiments.FollowCamera;
 import com.filrouge.leaphover.experiments.HillGenerator;
 import com.filrouge.leaphover.experiments.HoverBoard;
@@ -49,6 +51,7 @@ public class LeapHover implements ApplicationListener {
 		float h = Gdx.graphics.getHeight();
 		
 		world = new World(GRAVITY, true);
+		this.world.setContactListener(new BodyCollision());
 				
 		camera = new FollowCamera(1, h/w);
 		initialCameraPosition = new Vector3(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0f);
