@@ -15,7 +15,7 @@ public class HoverBoard {
 		this.hero = world.createBody(bodyDefinition);
 		
 		PolygonShape polygonShape = new PolygonShape();
-		polygonShape.setAsBox(side, side);
+		polygonShape.setAsBox(side * 3.5f, side);
 		hero.createFixture(polygonShape, 1);
 		
 		polygonShape.dispose();

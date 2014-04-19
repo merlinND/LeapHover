@@ -75,7 +75,7 @@ public class LeapHover implements ApplicationListener {
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
 		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
 		
-		float side = camera.viewportHeight / 20f;
+		float side = camera.viewportHeight / 50f;
 		
 		this.hoverBoard = new HoverBoard(bodyDefinition, this.world, side);
 		this.hero = this.hoverBoard.getHero();
