@@ -7,6 +7,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class HandPanel extends JPanel implements LeapListener {
+
+	private static final long serialVersionUID = -7333447773616900559L;
 	private JLabel label;
 	
 	public HandPanel() {
