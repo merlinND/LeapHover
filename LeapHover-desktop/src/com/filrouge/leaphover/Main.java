@@ -11,7 +11,6 @@ public class Main {
 		cfg.useGL20 = false;
 		cfg.width = 1024;
 		cfg.height = 768;
-		cfg.fullscreen=true;
 		
 		new LwjglApplication(new LeapHover(), cfg);
 	}
