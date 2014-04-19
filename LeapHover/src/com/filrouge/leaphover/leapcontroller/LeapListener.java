@@ -1,9 +1,16 @@
 package com.filrouge.leaphover.leapcontroller;
 
-import com.badlogic.gdx.InputProcessor;
+import com.leapmotion.leap.Listener;
 
-public interface LeapListener extends InputProcessor
+/**
+ * Our intermediate interface to process Leap Motion events
+ * @author Rémi Martin
+ */
+public abstract class LeapListener extends Listener
 {
-	// Method(s)
-	public boolean handPosition(int percent);
+	/**
+	 * Process variations of one hand's height
+	 * @param percent
+	 */
+	public abstract boolean handHeight(int percent);
 }

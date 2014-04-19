@@ -2,10 +2,12 @@ package com.filrouge.leaphover.leapcontroller;
 
 import java.util.ArrayList;
 
-import com.badlogic.gdx.InputProcessor;
-import com.leapmotion.leap.*;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Gesture;
+import com.leapmotion.leap.Hand;
 
-public class LeapThrower extends Listener {
+public class LeapThrower extends LeapListener {
 	/*
 	 * Attribute(s)
 	 */
@@ -17,47 +19,6 @@ public class LeapThrower extends Listener {
 	 */
 	public void addListener(LeapListener toAdd) {
 		listeners.add(toAdd);
-	}
-	
-	public void touchDown(int x, int y) {
-		// todo : call right method depending on the event
-		for(InputProcessor listener : listeners) {
-			listener.touchDown(x, y, -1, -1);
-		}
-	}
-	
-	public void touchUp(int x, int y) {
-		// todo : call right method depending on the event
-		for(InputProcessor listener : listeners) {
-			listener.touchUp(x, y, -1, -1);
-		}
-	}
-	
-	public void touchDragged(int x, int y) {
-		// todo : call right method depending on the event
-		for(InputProcessor listener : listeners) {
-			listener.touchDragged(x, y, -1);
-		}
-	}
-	
-	public void keyDown(int key) {
-		// todo : call right method depending on the event
-		for(InputProcessor listener : listeners) {
-			listener.keyDown(key);
-		}
-	}
-	
-	public void keyUp(int key) {
-		// todo : call right method depending on the event
-		for(InputProcessor listener : listeners) {
-			listener.keyUp(key);
-		}
-	}
-	
-	public void handPosition(int percent) {
-		for(LeapListener listener : listeners) {
-			listener.handPosition(percent);
-		}
 	}
 	
 	// LEAP
@@ -101,9 +62,17 @@ public class LeapThrower extends Listener {
             	if(Math.abs(normalX) < 0.2 && Math.abs(normalX) > 0) {
             		float positionY = hand.palmPosition().get(1);
             		positionY = (positionY < maxHeight) ? positionY : maxHeight;
-            		handPosition((int) ((positionY/maxHeight)*100));
+            		handHeight((int) ((positionY/maxHeight)*100));
             	}
             }
         }
     }
+    
+    @Override
+    public boolean handHeight(int percent) {
+		for(LeapListener listener : listeners) {
+			listener.handHeight(percent);
+		}
+		return false;
+	}
 }

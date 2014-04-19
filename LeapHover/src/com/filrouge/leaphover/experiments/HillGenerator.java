@@ -92,7 +92,7 @@ public class HillGenerator {
 		// Compute n so as to have a constant horizontal density of control points
 		
 		int n = (int) ( (xMax - xMin) * 3f);
-		System.out.println("Generating a hill with " + n + " control points.");
+		//System.out.println("Generating a hill with " + n + " control points.");
 		n = (n < MIN_CONTROL_POINTS ? MIN_CONTROL_POINTS : n);
 		n = (n > MAX_CONTROL_POINTS ? MAX_CONTROL_POINTS : n);
 		
