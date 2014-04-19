@@ -22,13 +22,18 @@ public class Hero {
 	public Hero(BodyDef bodyDefinition, World world, float side) {
 		this.body = world.createBody(bodyDefinition);
 		
-		// Create board
 		PolygonShape polygonShape = new PolygonShape();
-		polygonShape.setAsBox(side * 3.5f, side);
+		// Create board
+		float boardHeight = side;
+		polygonShape.setAsBox(side * 3.5f, boardHeight);
 		board = body.createFixture(polygonShape, 1);
 		
 		// Create character
-		// TODO
+		float characterHeight = side * 1.5f;
+		Vector2 characterOffset = new Vector2(0, characterHeight + boardHeight);
+		polygonShape.setAsBox(side, characterHeight, characterOffset, 0f);
+		// TODO: should the character have a density (and thus a mass)?
+		character = body.createFixture(polygonShape, 0);
 		
 		polygonShape.dispose();
 	}
@@ -45,7 +50,6 @@ public class Hero {
 //		body.getWorld().rayCast(callbackFront, front, endOfRay);
 //		callbackBack = new HoverRayCastCallback(body, this, bottom);
 //		body.getWorld().rayCast(callbackBack, bottom, endOfRay);
-		
 	}
 	
 	public void spring() {

@@ -1,5 +1,7 @@
 package com.filrouge.leaphover;
 
+import java.util.concurrent.Callable;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
@@ -8,11 +10,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
-import com.filrouge.leaphover.experiments.BodyCollision;
+import com.filrouge.leaphover.experiments.CollisionDetector;
 import com.filrouge.leaphover.experiments.FollowCamera;
-import com.filrouge.leaphover.experiments.HillGenerator;
 import com.filrouge.leaphover.experiments.Hero;
+import com.filrouge.leaphover.experiments.HillGenerator;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -37,8 +40,17 @@ public class LeapHover implements ApplicationListener {
 	/** A reference to the main character (for testing purpose) */
 	protected Hero hero;
 	
+	/** Angle of the hero to the horizontal (in radian) */
 	public static final float INITIAL_HERO_INCLINATION = 0f;
 	protected float heroInclination = INITIAL_HERO_INCLINATION;
+	
+	/** When this flag is up, restart the level */
+	protected boolean retryFlag = false;
+	
+	/**
+	 * Contact handler (detect collisions of the character with the environment)
+	 */
+	protected ContactListener contactListener;
 	
 	/* 
 	 * METHODS
@@ -49,7 +61,6 @@ public class LeapHover implements ApplicationListener {
 		float h = Gdx.graphics.getHeight();
 		
 		world = new World(GRAVITY, true);
-		this.world.setContactListener(new BodyCollision());
 				
 		camera = new FollowCamera(1, h/w);
 		initialCameraPosition = new Vector3(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0f);
@@ -81,6 +92,27 @@ public class LeapHover implements ApplicationListener {
 		float side = camera.viewportHeight / 50f;
 		
 		this.hero = new Hero(bodyDefinition, this.world, side);
+		
+		// Detect collisions with character
+		this.contactListener = new CollisionDetector(hero.getCharacter(), new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				loseGame();
+				return true;
+			}
+		});
+		world.setContactListener(this.contactListener);
+	}
+	
+	public void retryLevel() {
+		Body heroBody = this.hero.getBody();
+		heroBody.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
+		heroBody.setLinearVelocity(new Vector2(0f, 0f));
+		heroBody.setAngularVelocity(0);
+	}
+	public void loseGame() {
+		System.out.println("You lost the game.");
+		retryFlag = true;
 	}
 	
 	@Override
@@ -94,13 +126,12 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		Body heroBody = hero.getBody();
-		heroBody.setTransform(hero.getPosition(), getHeroInclination());
+		//heroBody.setTransform(hero.getPosition(), getHeroInclination());
 		
 		// If hero gets off screen, reset its position
-		if (hero.getPosition().y < -0.5f) {
-			heroBody.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
-			heroBody.setLinearVelocity(new Vector2(0f, 0f));
-			heroBody.setAngularVelocity(0);
+		if (retryFlag || hero.getPosition().y < -0.5f) {
+			retryLevel();
+			retryFlag = false;
 		}
 		
 		heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
@@ -121,8 +152,6 @@ public class LeapHover implements ApplicationListener {
 
 	@Override
 	public void pause() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
