@@ -9,7 +9,9 @@ import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class Hero {
-	public static float MAX_JUMP_FORCE = 0.2f;
+	public static final float MAX_JUMP_FORCE = 0.2f;
+	public static final float TARGET_HEIGHT = 0.15f;
+	public static final float SPRING_CONSTANT = 0.1f;
 	
 	protected Body body;
 	protected Fixture board, character;
@@ -50,30 +52,40 @@ public class Hero {
 		Vector2 back = new Vector2(startOfRay).add((float) (this.boardWidth/2*Math.cos(angle)*-1), 
 													(float) (this.boardWidth/2*Math.sin(angle)*-1));
 		
-		Vector2 endOfRayFront = new Vector2(front.x,-5);
-		Vector2 endOfRayBack = new Vector2(back.x,-5);
+		Vector2 normal = new Vector2(- TARGET_HEIGHT * (float)Math.sin(angle), - TARGET_HEIGHT * (float)Math.cos(angle));
+		Vector2 endOfRayFront = front.cpy().add(normal);
+		Vector2 endOfRayBack = back.cpy().add(normal);
 		
 		callbackFront = new HoverRayCastCallback(body, this, front);
 		body.getWorld().rayCast(callbackFront, front, endOfRayFront);
 		callbackBack = new HoverRayCastCallback(body, this, back);
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 	}
-	
+
+	/**
+	 * 
+	 * @param position
+	 * @param callback
+	 * @see http://www.iforce2d.net/b2dtut/suspension
+	 */
 	public void spring(Vector2 position, HoverRayCastCallback callback) {
-		float targetHeight = 0.1f;
-		float springConstant = 0.1f;
-  
+		float distanceToGround = callback.getDistance();
+		while(distanceToGround == Float.MAX_VALUE);
 		
-		// http://www.iforce2d.net/b2dtut/suspension
-		float distanceAboveGround = callback.getDistance();
-		while(distanceAboveGround == Float.MAX_VALUE);
+		distanceToGround = Math.abs(distanceToGround);
 		
-		if (distanceAboveGround != Float.MAX_VALUE) {
-			if(distanceAboveGround < targetHeight) {
-				//body.applyForce(body.getWorld().getGravity().mul(body.getMass()), body.getWorldCenter(), true);
-				distanceAboveGround += 0.25f * body.getLinearVelocity().y;
-				float distanceAwayFromTargetHeight = targetHeight - distanceAboveGround;
-				Vector2 force = new Vector2(0.001f, springConstant*distanceAwayFromTargetHeight);
+		if (distanceToGround != Float.MAX_VALUE) {
+			// TODO : fix dampening computation
+			if(distanceToGround < TARGET_HEIGHT) {
+				// Dampening
+				distanceToGround += 0.25f * body.getLinearVelocity().y;
+				
+				float magnitude = SPRING_CONSTANT * (TARGET_HEIGHT - distanceToGround);
+				magnitude = Math.abs(magnitude);
+				
+				float angle = getBody().getAngle();
+				System.out.println(magnitude);
+				Vector2 force = new Vector2(- magnitude * (float)Math.sin(angle), magnitude * (float)Math.cos(angle));
 				body.applyForce(force, position, true);
 			}
 		}

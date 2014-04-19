@@ -127,7 +127,8 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		Body heroBody = hero.getBody();
-		heroBody.setTransform(hero.getPosition(), getHeroInclination());
+		float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
+		heroBody.setTransform(hero.getPosition(), angle);
 		
 		// If hero gets off screen, reset its position
 		if (retryFlag || hero.getPosition().y < -0.5f) {
@@ -135,7 +136,7 @@ public class LeapHover implements ApplicationListener {
 			retryFlag = false;
 		}
 		
-		heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
+		//heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
 		// Limit speed
 		//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
 		hero.render();
