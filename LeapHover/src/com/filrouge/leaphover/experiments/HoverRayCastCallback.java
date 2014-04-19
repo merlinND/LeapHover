@@ -10,7 +10,7 @@ public class HoverRayCastCallback implements RayCastCallback {
 	private Body hero;
 	private HoverBoard hoverboard;
 	
-	public HoverRayCastCallback(Body hero, HoverBoard hoverboard) {
+	public HoverRayCastCallback(Body hero, HoverBoard hoverboard, Vector2 position) {
 		this.hero=hero;
 		this.hoverboard=hoverboard;
 	}
@@ -20,7 +20,6 @@ public class HoverRayCastCallback implements RayCastCallback {
 			float fraction) {
 		// not ordered
 		
-		System.out.println("hero pos :"+this.hero.getPosition()+"point "+ point + " | normal : "+normal +" | fraction : "+fraction);
 		float dist = this.hero.getWorldCenter().dst(point);
 		//System.out.println(dist);
 		if(dist < distance) {

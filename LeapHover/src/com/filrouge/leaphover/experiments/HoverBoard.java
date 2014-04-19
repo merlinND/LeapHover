@@ -11,7 +11,8 @@ public class HoverBoard {
 	
 	protected Body hero;
 	protected World world;
-	protected HoverRayCastCallback callback;
+	protected HoverRayCastCallback callbackFront;
+	protected HoverRayCastCallback callbackBottom;
 	
 	private float distance = Float.MAX_VALUE;
 	
@@ -35,8 +36,13 @@ public class HoverBoard {
 		Vector2 startOfRay = this.hero.getPosition();
 		Vector2 endOfRay = new Vector2(0,-5);
 		
-		this.callback = new HoverRayCastCallback(this.hero, this);
-		this.world.rayCast(this.callback, startOfRay, endOfRay);
+		Vector2 front = new Vector2(startOfRay).add(0, 0);
+		Vector2 bottom = new Vector2(endOfRay).add(0, 0);
+		
+		this.callbackFront = new HoverRayCastCallback(this.hero, this, front);
+		this.world.rayCast(this.callbackFront, front, endOfRay);
+		this.callbackBottom = new HoverRayCastCallback(this.hero, this, bottom);
+		this.world.rayCast(this.callbackBottom, bottom, endOfRay);
 		
 		this.hero.applyForce(new Vector2(0.001f, 0), this.hero.getPosition(), true);
 		
@@ -48,17 +54,15 @@ public class HoverBoard {
   
 		
 		// http://www.iforce2d.net/b2dtut/suspension
-		float distanceAboveGround = this.callback.getDistance();
+		float distanceAboveGround = this.callbackFront.getDistance();
 		while(distanceAboveGround == Float.MAX_VALUE);
 		
 		if (distanceAboveGround != Float.MAX_VALUE) {
-			System.out.println("Above ground : " + distanceAboveGround);
 			if(distanceAboveGround < targetHeight) {
 				this.hero.applyForce(this.world.getGravity().mul(this.hero.getMass()),
                         this.hero.getWorldCenter(), true);
 				distanceAboveGround += 0.25f * this.hero.getLinearVelocity().y;
 				float distanceAwayFromTargetHeight = targetHeight - distanceAboveGround;
-				System.out.println(" => from target : " + distanceAwayFromTargetHeight);
 				Vector2 force = new Vector2(0.001f, springConstant*distanceAwayFromTargetHeight);
 				this.hero.applyForce(force, this.hero.getWorldCenter(), true);
 			}
