@@ -8,9 +8,11 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 public class HoverRayCastCallback implements RayCastCallback {
 	private float distance = Float.MAX_VALUE;
 	private Body hero;
+	private HoverBoard hoverboard;
 	
-	public HoverRayCastCallback(Body hero) {
+	public HoverRayCastCallback(Body hero, HoverBoard hoverboard) {
 		this.hero=hero;
+		this.hoverboard=hoverboard;
 	}
 	
 	@Override
@@ -18,12 +20,13 @@ public class HoverRayCastCallback implements RayCastCallback {
 			float fraction) {
 		// not ordered
 		
-		float dist = this.hero.getPosition().dst(point);
+		System.out.println("hero pos :"+this.hero.getPosition()+"point "+ point + " | normal : "+normal +" | fraction : "+fraction);
+		float dist = this.hero.getWorldCenter().dst(point);
 		//System.out.println(dist);
 		if(dist < distance) {
 			distance=dist;
+			this.hoverboard.spring();
 		}
-		
 		return 0;
 	}
 	
