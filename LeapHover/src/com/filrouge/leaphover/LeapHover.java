@@ -12,7 +12,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.experiments.BodyCollision;
 import com.filrouge.leaphover.experiments.FollowCamera;
 import com.filrouge.leaphover.experiments.HillGenerator;
-import com.filrouge.leaphover.experiments.HoverBoard;
+import com.filrouge.leaphover.experiments.Hero;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -35,10 +35,9 @@ public class LeapHover implements ApplicationListener {
 	public static final int BOX_POSITION_ITERATIONS = 2; 
 	
 	/** A reference to the main character (for testing purpose) */
-	protected Body hero;
-	protected HoverBoard hoverBoard;
+	protected Hero hero;
 	
-	protected final float INITIAL_HERO_INCLINATION = 0f;
+	public static final float INITIAL_HERO_INCLINATION = 0f;
 	protected float heroInclination = INITIAL_HERO_INCLINATION;
 	
 	/* 
@@ -79,11 +78,9 @@ public class LeapHover implements ApplicationListener {
 		// Falling box
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
 		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
-		
 		float side = camera.viewportHeight / 50f;
 		
-		this.hoverBoard = new HoverBoard(bodyDefinition, this.world, side);
-		this.hero = this.hoverBoard.getHero();
+		this.hero = new Hero(bodyDefinition, this.world, side);
 	}
 	
 	@Override
@@ -96,19 +93,20 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
-		hero.setTransform(hero.getPosition(), getHeroInclination());
+		Body heroBody = hero.getBody();
+		heroBody.setTransform(hero.getPosition(), getHeroInclination());
 		
 		// If hero gets off screen, reset its position
 		if (hero.getPosition().y < -0.5f) {
-			hero.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
-			hero.setLinearVelocity(new Vector2(0f, 0f));
-			hero.setAngularVelocity(0);
+			heroBody.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
+			heroBody.setLinearVelocity(new Vector2(0f, 0f));
+			heroBody.setAngularVelocity(0);
 		}
 		
+		heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
 		// Limit speed
 		//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
-		
-		this.hoverBoard.render();
+		hero.render();
 			
 		// Follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
@@ -139,15 +137,9 @@ public class LeapHover implements ApplicationListener {
 	public World getWorld() {
 		return world;
 	}
-	public void setWorld(World world) {
-		this.world = world;
-	}
 
-	public Body getHero() {
+	public Hero getHero() {
 		return hero;
-	}
-	public void setHero(Body hero) {
-		this.hero = hero;
 	}
 
 	public float getHeroInclination() {

@@ -46,6 +46,9 @@ public abstract class LeapListener extends Listener
 		    	handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
 		    }
 		}
+		else {
+			noHand();
+		}
 	}
 	
 	/**
@@ -62,6 +65,15 @@ public abstract class LeapListener extends Listener
 	 * @return
 	 */
 	public boolean handInclination(float percent) {
+		return false;
+	}
+	
+	/**
+	 * Event dispatched when no hand is detected.
+	 * Useful to reset controls to default value, for example.
+	 * @return
+	 */
+	public boolean noHand() {
 		return false;
 	}
 }

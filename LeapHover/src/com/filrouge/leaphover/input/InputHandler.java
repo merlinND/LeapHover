@@ -7,7 +7,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.filrouge.leaphover.LeapHover;
-import com.filrouge.leaphover.experiments.HoverBoard;
+import com.filrouge.leaphover.experiments.Hero;
 import com.filrouge.leaphover.leapcontroller.LeapListener;
 
 public class InputHandler extends LeapListener implements InputProcessor {
@@ -42,8 +42,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 * @param amount
 	 */
 	public void makeJump(float amount) {
-		Vector2 force = new Vector2(0, (amount * HoverBoard.MAX_JUMP_FORCE) / 100);
-		game.getHero().applyForce(force, game.getHero().getPosition(), true);
+		Vector2 force = new Vector2(0, (amount * Hero.MAX_JUMP_FORCE) / 100);
+		game.getHero().getBody().applyForce(force, game.getHero().getPosition(), true);
 	}
 	
 	public void makeInclination(float angle) {
@@ -58,7 +58,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		targetAngle /= (float)inclinationSamples.size();
 		
 		game.setHeroInclination(targetAngle);
-		System.out.println("Hero inclination : " + targetAngle + "rad.");
 	}
 	
 	
@@ -91,10 +90,20 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 
+	@Override
 	public boolean handInclination(float percent) {
-		float targetAngle = (1.5f - percent) * (float)Math.PI;
+		float targetAngle = (0.5f - percent) * (float)Math.PI;
 		makeInclination(targetAngle);
 		
+		return false;
+	}
+	
+	/**
+	 * Reset inclination to default.
+	 */
+	@Override
+	public boolean noHand() {
+		makeInclination(LeapHover.INITIAL_HERO_INCLINATION);
 		return false;
 	}
 	
