@@ -24,6 +24,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
+	protected final float ANGLE_CONTRIBUTION_RATIO = 0.08f;
 	
 	/* 
 	 * METHODS
@@ -57,7 +58,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			targetAngle += a;
 		targetAngle /= (float)inclinationSamples.size();
 		
-		game.setHeroInclination(targetAngle);
+		// Only make a relative contribution (influence) to the hero's angle
+		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
 	}
 	
 	
@@ -92,18 +94,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 	@Override
 	public boolean handInclination(float percent) {
-		float targetAngle = (0.5f - percent) * (float)Math.PI;
-		makeInclination(targetAngle);
+		float convertedAngle = (0.5f - percent) * (float)Math.PI;
+		makeInclination(convertedAngle);
 		
-		return false;
-	}
-	
-	/**
-	 * Reset inclination to default.
-	 */
-	@Override
-	public boolean noHand() {
-		makeInclination(LeapHover.INITIAL_HERO_INCLINATION);
 		return false;
 	}
 	

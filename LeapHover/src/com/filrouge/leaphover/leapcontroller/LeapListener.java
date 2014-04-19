@@ -14,8 +14,8 @@ public abstract class LeapListener extends Listener
 	protected final double MIN_HAND_ANGLE = 0.;
 	protected final double MAX_HAND_ANGLE = 0.2;
 	
-	protected final double MIN_HAND_INCLINATION = 0.5;
-	protected final double MAX_HAND_INCLINATION = 3.2;
+	public static final double MIN_HAND_INCLINATION = 0.5;
+	public static final double MAX_HAND_INCLINATION = 3.2;
 	
 	@Override
 	public void onFrame(Controller controller) {
