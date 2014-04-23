@@ -47,6 +47,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		game.getHero().getBody().applyForce(force, game.getHero().getPosition(), true);
 	}
 	
+	/**
+	 * Make a relative change to the hero's angle.
+	 * The inclination is smoothed over the <tt>MAX_SAMPLE_NUMBER</tt> calls.
+	 * @param angle Relative change to make to the hero's inclination
+	 */
 	public void makeInclination(float angle) {
 		// Smooth over the last few frames
 		inclinationSamples.add(angle);
@@ -105,24 +110,46 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	@Override
 	public boolean keyDown(int keycode) {
+		switch (keycode) {
 		// Accumulate "force"
-		if(Input.Keys.DOWN == keycode) {
-			this.time++;
-		} else if(Input.Keys.ENTER == keycode) {
+		case Input.Keys.DOWN:
+			this.time++;			
+			break;
+		// Augment board inclination
+		case Input.Keys.LEFT:
+			makeInclination((float)Math.PI / 2f);
+			break;
+		// Reduce board inclination
+		case Input.Keys.RIGHT:
+			makeInclination(- (float)Math.PI / 2f);
+			break;
+		// Retry lever after losing
+		case Input.Keys.ENTER:
 			game.retryLevel();
+			break;
+			
+		default:
+			break;
 		}
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
+		switch (keycode) {
 		// Trigger jump
-		if (Input.Keys.DOWN == keycode && this.time > 0) {
-			// TODO: adjust
-			float amount = this.time * 100f;
-			makeJump(amount);
-			// Reset for next jump
-			this.time = 0;
+		case Input.Keys.DOWN:
+			if (this.time > 0) {
+				// TODO: adjust
+				float amount = this.time * 100f;
+				makeJump(amount);
+				// Reset for next jump
+				this.time = 0;
+			}			
+			break;
+
+		default:
+			break;
 		}
 		return false;
 	}
