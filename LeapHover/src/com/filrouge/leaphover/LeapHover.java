@@ -212,6 +212,10 @@ public class LeapHover implements ApplicationListener {
 	public Hero getHero() {
 		return hero;
 	}
+	
+	public FollowCamera getCamera() {
+		return camera;
+	}
 
 	public float getHeroInclination() {
 		return heroInclination;
