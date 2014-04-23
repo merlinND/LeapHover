@@ -63,6 +63,23 @@ public class LeapHover implements ApplicationListener {
 	/* 
 	 * METHODS
 	 */
+	/** Private constructor (LeapHover is a Singleton) */
+	private LeapHover() {
+		
+	}
+	private static class SingletonHolder {
+		/** Instance unique non préinitialisée */
+		private final static LeapHover instance = new LeapHover();
+	}
+	/** 
+	 * Récupérer l'unique instance de ce LeapHover (pattern Singleton)
+	 * Source : http://thecodersbreakfast.net/index.php?post/2008/02/25/26-de-la-bonne-implementation-du-singleton-en-java
+	 */
+	public static LeapHover getInstance() {
+		return SingletonHolder.instance;
+	}
+	
+	
 	@Override
 	public void create() {	
 		float w = Gdx.graphics.getWidth();

@@ -12,7 +12,7 @@ public class Main {
 		cfg.height = 768;
 		//cfg.fullscreen = true;
 		
-		LeapHover game = new LeapHover();
+		LeapHover game = LeapHover.getInstance();
 		new App(game, cfg);
 	}
 }
