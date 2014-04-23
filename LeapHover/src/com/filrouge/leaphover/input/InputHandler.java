@@ -5,8 +5,6 @@ import java.util.List;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.math.Vector2;
-import com.filrouge.leaphover.game.Hero;
 import com.filrouge.leaphover.game.LeapHover;
 
 public class InputHandler extends LeapListener implements InputProcessor {
@@ -15,7 +13,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	protected LeapHover game;
 	
-	protected int time = 0;
 	/** Number of cycles of hand being "down" */
 	protected int numberOfLeapSamples = 0;
 	/** Used to accumulate received hand heights and then compute an average */
@@ -37,13 +34,10 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	}
 	
 	/**
-	 * 
-	 * TODO: define unit of amount
-	 * @param amount
+	 * @param amount Value in [0,1]
 	 */
 	public void makeJump(float amount) {
-		Vector2 force = new Vector2(0, (amount * Hero.MAX_JUMP_FORCE) / 100);
-		game.getHero().getBody().applyForce(force, game.getHero().getPosition(), true);
+		game.getHero().jump(amount);
 	}
 	
 	public void makeInclination(float angle) {
@@ -77,12 +71,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 * LEAP EVENTS
 	 */
 	@Override
-	public boolean handHeight(float percent) {
+	public boolean handHeight(float amount) {
 		// TODO: only allow jumping if not already mid-air
-		// TODO: make jump perpendicular to the hero, not always vertical
 		
 		// Trigger jump
-		if(percent >= 0.5 && this.numberOfLeapSamples > 0) {
+		if(amount >= 0.5 && this.numberOfLeapSamples > 0) {
 			float averageHeight = this.percentSum / this.numberOfLeapSamples;
 			
 			// [100, 61] --> [0.2, 0]
@@ -93,9 +86,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			this.numberOfLeapSamples = 0;
 		}
 		// Accumulate "force"
-		else if(percent < 0.4) {
+		else if(amount < 0.4) {
 			// [0;39] --> [100, 61]
-			this.percentSum += 100 - percent;
+			this.percentSum += 1 - amount;
 			++this.numberOfLeapSamples;
 		}
 		
@@ -116,10 +109,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		switch (keycode) {
-		// Accumulate "force"
-		case Input.Keys.DOWN:
-			this.time++;			
-			break;
 		// Augment board inclination
 		case Input.Keys.LEFT:
 			makeInclination((float)Math.PI / 2f, false);
@@ -144,13 +133,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		switch (keycode) {
 		// Trigger jump
 		case Input.Keys.DOWN:
-			if (this.time > 0) {
-				// TODO: adjust
-				float amount = this.time * 100f;
-				makeJump(amount);
-				// Reset for next jump
-				this.time = 0;
-			}			
+			makeJump(1f);
 			break;
 
 		default:

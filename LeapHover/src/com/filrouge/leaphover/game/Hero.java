@@ -12,6 +12,7 @@ import com.filrouge.leaphover.physics.HoverRayCastCallback;
 import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class Hero {
+	public static final float MAX_LINEAR_VELOCITY = 1.5f;
 	public static final float MAX_JUMP_FORCE = 0.1f;
 	public static final float TARGET_HEIGHT = 0.15f;
 	public static final float SPRING_CONSTANT = 0.1f;
@@ -45,7 +46,7 @@ public class Hero {
 		polygonShape.dispose();
 	}
 	
-	public void render() {
+	public void step() {
 		//make the ray at least as long as the target distance
 		Vector2 startOfRay = this.body.getWorldCenter();
 		float angle = this.body.getAngle();
@@ -99,10 +100,23 @@ public class Hero {
 			
 			body.applyForce(force, position, true);
 
-			//System.out.println("Springing with force : " + force + " => " + force.len());
 			Vector2 end = position.cpy().add(force.cpy().scl(10f));
 			SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), position, end, Color.RED);
 		}
+	}
+	
+	/**
+	 * Jump perpendicular to current inclination
+	 * TODO: define unit of amount
+	 * TODO: change jump mechanism to take advantage of the spring effect
+	 * @param amount
+	 */
+	public void jump(float amount) {
+		float angle = getBody().getAngle();
+		Vector2 force = new Vector2(- (float)Math.sin(angle),
+				 					(float)Math.cos(angle));
+		force = force.scl(amount * MAX_JUMP_FORCE);
+		getBody().applyForce(force, getPosition(), true);
 	}
 	
 	/*

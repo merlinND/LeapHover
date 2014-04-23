@@ -162,16 +162,19 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer.render(world, camera.combined);
 
 		if(!this.paused) {
-			// Apply some friction
-			//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
-
-			hero.render();
-			
+			hero.step();
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 
 			// Apply hero inclination smoothly
 			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
 			hero.getBody().setTransform(hero.getPosition(), angle);
+
+			// Limit linear velocity
+			Vector2 velocity = hero.getBody().getLinearVelocity();
+			if (velocity.len() > Hero.MAX_LINEAR_VELOCITY) {
+				velocity = velocity.nor().scl(Hero.MAX_LINEAR_VELOCITY);
+				hero.getBody().setLinearVelocity(velocity);
+			}
 		}
 		if (this.lost) {
 			BitmapFont font = new BitmapFont();
