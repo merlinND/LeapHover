@@ -1,20 +1,17 @@
 package com.filrouge.leaphover.experiments;
 
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 
 public class HoverRayCastCallback implements RayCastCallback {
-	private float distance = Float.MAX_VALUE;
-	private Body board;
+	private Float distance = null;
 	private Hero hoverboard;
 	private Vector2 position;
 	
-	public HoverRayCastCallback(Body board, Hero hoverboard, Vector2 position) {
-		this.board = board;
+	public HoverRayCastCallback(Hero hoverboard, Vector2 position) {
 		this.hoverboard = hoverboard;
-		this.position=position;
+		this.position = position;
 	}
 	
 	/**
@@ -26,8 +23,8 @@ public class HoverRayCastCallback implements RayCastCallback {
 			float fraction) {
 		
 		float dist = position.dst(point);
-		//System.out.println(dist);
-		if(dist < distance) {
+		
+		if(distance == null || dist < distance) {
 			distance = dist;
 			this.hoverboard.spring(this.position, this);
 		}
