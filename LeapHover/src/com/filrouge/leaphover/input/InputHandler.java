@@ -47,21 +47,27 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		game.getHero().getBody().applyForce(force, game.getHero().getPosition(), true);
 	}
 	
+	public void makeInclination(float angle) {
+		makeInclination(angle, true);
+	}
 	/**
 	 * Make a relative change to the hero's angle.
-	 * The inclination is smoothed over the <tt>MAX_SAMPLE_NUMBER</tt> calls.
 	 * @param angle Relative change to make to the hero's inclination
+	 * @param smooth The inclination is smoothed over the <tt>MAX_SAMPLE_NUMBER</tt> calls
 	 */
-	public void makeInclination(float angle) {
+	public void makeInclination(float angle, boolean smooth) {
 		// Smooth over the last few frames
-		inclinationSamples.add(angle);
-		if (inclinationSamples.size() > MAX_SAMPLE_NUMBER)
-			inclinationSamples.remove(0);
-		
-		float targetAngle = 0;
-		for (Float a : inclinationSamples)
-			targetAngle += a;
-		targetAngle /= (float)inclinationSamples.size();
+		float targetAngle = angle;
+		if (smooth) {
+			inclinationSamples.add(angle);
+			if (inclinationSamples.size() > MAX_SAMPLE_NUMBER)
+				inclinationSamples.remove(0);
+			
+			targetAngle = 0;
+			for (Float a : inclinationSamples)
+				targetAngle += a;
+			targetAngle /= (float)inclinationSamples.size();
+		}
 		
 		// Only make a relative contribution (influence) to the hero's angle
 		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
@@ -117,11 +123,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			break;
 		// Augment board inclination
 		case Input.Keys.LEFT:
-			makeInclination((float)Math.PI / 2f);
+			makeInclination((float)Math.PI / 2f, false);
 			break;
 		// Reduce board inclination
 		case Input.Keys.RIGHT:
-			makeInclination(- (float)Math.PI / 2f);
+			makeInclination(- (float)Math.PI / 2f, false);
 			break;
 		// Retry lever after losing
 		case Input.Keys.ENTER:
