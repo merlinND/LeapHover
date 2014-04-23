@@ -6,13 +6,12 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.filrouge.leaphover.game.Hero;
 
 public class HoverRayCastCallback implements RayCastCallback {
-	private Float distance = null;
 	private Hero hoverboard;
-	private Vector2 position;
+	private Float distance = null;
+	private Vector2 position = null;
 	
-	public HoverRayCastCallback(Hero hoverboard, Vector2 position) {
+	public HoverRayCastCallback(Hero hoverboard) {
 		this.hoverboard = hoverboard;
-		this.position = position;
 	}
 	
 	/**
@@ -32,6 +31,10 @@ public class HoverRayCastCallback implements RayCastCallback {
 		return 0;
 	}
 	
+	public void reset(Vector2 position) {
+		this.distance = null;
+		this.position = position;
+	}
 	public float getDistance() {
 		return this.distance;
 	}
