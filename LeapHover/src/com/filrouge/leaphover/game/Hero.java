@@ -1,9 +1,7 @@
 package com.filrouge.leaphover.game;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -56,6 +54,10 @@ public class Hero {
 		callbackFront = new HoverRayCastCallback(this);
 		callbackBack = new HoverRayCastCallback(this);
 		isCloseToGround = false;
+	}
+	
+	public void render(SpriteBatch batch) {
+		// TODO: use particle system to render thrust
 	}
 	
 	public void step() {

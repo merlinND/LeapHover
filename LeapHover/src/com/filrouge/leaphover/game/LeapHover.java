@@ -30,6 +30,7 @@ public class LeapHover implements ApplicationListener {
 	protected FollowCamera camera;
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
 	protected Box2DDebugRenderer debugRenderer;
+	SpriteBatch spriteBatch;
 	
 	/** Rates at which the physical simulation advances */
 	public static final Vector2 GRAVITY = new Vector2(0, -1f);
@@ -91,6 +92,7 @@ public class LeapHover implements ApplicationListener {
 		camera.update();
 		
 		debugRenderer = new Box2DDebugRenderer();
+		spriteBatch = new SpriteBatch();
 		
 		setupTestScene();
 	}
@@ -161,6 +163,7 @@ public class LeapHover implements ApplicationListener {
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		debugRenderer.render(world, camera.combined);
 
+		spriteBatch.begin();
 		if(!this.paused) {
 			hero.step();
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
@@ -175,16 +178,16 @@ public class LeapHover implements ApplicationListener {
 				velocity = velocity.nor().scl(Hero.MAX_LINEAR_VELOCITY);
 				hero.getBody().setLinearVelocity(velocity);
 			}
+			
+			hero.render(spriteBatch);
 		}
 		if (this.lost) {
 			BitmapFont font = new BitmapFont();
 			font.setScale(3f);
 			String str="You lost the game. Your scored : " + Math.round(this.score) + " points.";
-			SpriteBatch spriteBatch = new SpriteBatch();
-			spriteBatch.begin();
 			font.draw(spriteBatch, str, 100, 100);
-			spriteBatch.end();
 		}
+		spriteBatch.end();
 	}
 
 	@Override

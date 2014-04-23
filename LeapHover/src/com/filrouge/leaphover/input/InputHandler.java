@@ -72,13 +72,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	@Override
 	public boolean handHeight(float amount) {
-		// TODO: only allow jumping if not already mid-air
-		
 		// Trigger jump
 		if(amount >= 0.5 && this.numberOfLeapSamples > 0) {
 			float averageHeight = this.percentSum / this.numberOfLeapSamples;
-			
-			// [100, 61] --> [0.2, 0]
 			makeJump(averageHeight);
 
 			// Reset counters for next jump
@@ -87,7 +83,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		}
 		// Accumulate "force"
 		else if(amount < 0.4) {
-			// [0;39] --> [100, 61]
 			this.percentSum += 1 - amount;
 			++this.numberOfLeapSamples;
 		}
