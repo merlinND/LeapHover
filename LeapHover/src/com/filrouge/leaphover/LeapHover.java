@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -54,11 +53,11 @@ public class LeapHover implements ApplicationListener {
 	/** Score when the user loose the game */
 	protected double score = 0;
 	
-	
 	/**
 	 * Contact handler (detect collisions of the character with the environment)
 	 */
 	protected ContactListener contactListener;
+	
 	
 	/* 
 	 * METHODS
@@ -108,7 +107,7 @@ public class LeapHover implements ApplicationListener {
 		for (int i = 0; i < n; i++) {
 			bodyDefinition.position.set(i * BLOCK_WIDTH, 0);
 			Body groundBody = world.createBody(bodyDefinition);
-			HillGenerator.makeHill(groundBody, BLOCK_WIDTH, camera.viewportHeight);			
+			HillGenerator.makeHill(groundBody, BLOCK_WIDTH, camera.viewportHeight);
 		}
 		
 		// Falling box
@@ -160,22 +159,21 @@ public class LeapHover implements ApplicationListener {
 			retryLevel();
 		}
 		
-		// Limit speed
-		//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
-		
-		// Follow the hero
+		// Make the camera follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		debugRenderer.render(world, camera.combined);
 
 		if(!this.paused) {
-			Body heroBody = hero.getBody();
-			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
-			heroBody.setTransform(hero.getPosition(), angle);
-			
-			heroBody.applyForce(new Vector2(0.001f, 0), heroBody.getPosition(), true);
+			// Apply some friction
+			//if (hero.getPosition().y <= camera.viewportHeight && hero.getLinearVelocity().x < 0.8f)
+
 			hero.render();
 			
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
+
+			// Apply hero inclination smoothly
+			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
+			hero.getBody().setTransform(hero.getPosition(), angle);
 		}
 		if (this.lost) {
 			BitmapFont font = new BitmapFont();
@@ -212,11 +210,11 @@ public class LeapHover implements ApplicationListener {
 	public Hero getHero() {
 		return hero;
 	}
-	
+
 	public FollowCamera getCamera() {
 		return camera;
 	}
-
+	
 	public float getHeroInclination() {
 		return heroInclination;
 	}
