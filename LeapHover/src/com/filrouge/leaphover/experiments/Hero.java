@@ -15,6 +15,7 @@ public class Hero {
 	public static final float TARGET_HEIGHT = 0.15f;
 	public static final float SPRING_CONSTANT = 0.1f;
 	public static final float MAX_SPRING_FORCE = 0.1f;
+	public static final float DAMPENING_FACTOR = 0.1f;
 	
 	protected Body body;
 	protected Fixture board, character;
@@ -79,12 +80,12 @@ public class Hero {
 		Float distanceToGround = callback.getDistance();
 		// TODO: find a better way to wait for callback to be executed
 		while(distanceToGround == null);
-		System.out.println("Distance to ground reported : " + distanceToGround);
+		
 		distanceToGround = Math.abs(distanceToGround);
 		if(distanceToGround < TARGET_HEIGHT) {
 			// Dampening
-			// TODO : fix dampening computation to take into account both directions
-			//distanceToGround += 0.25f * body.getLinearVelocity().y;
+			// TODO : fix dampening computation to take into account both directions?
+			distanceToGround += DAMPENING_FACTOR * body.getLinearVelocity().y;
 			
 			float magnitude = SPRING_CONSTANT * (TARGET_HEIGHT - distanceToGround);
 			magnitude = Math.abs(magnitude);
@@ -95,7 +96,6 @@ public class Hero {
 			if (force.len() > MAX_SPRING_FORCE)
 				force = force.nor().scl(MAX_SPRING_FORCE);
 			
-			force.x = 0;
 			body.applyForce(force, position, true);
 
 			//System.out.println("Springing with force : " + force + " => " + force.len());
