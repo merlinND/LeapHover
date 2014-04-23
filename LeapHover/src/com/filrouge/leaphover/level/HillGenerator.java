@@ -1,10 +1,11 @@
-package com.filrouge.leaphover.experiments;
+package com.filrouge.leaphover.level;
 
 import java.util.ArrayList;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.filrouge.leaphover.util.BSCurve;
 
 public class HillGenerator {
 	/*

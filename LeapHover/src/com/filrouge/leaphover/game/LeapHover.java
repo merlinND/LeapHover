@@ -1,4 +1,4 @@
-package com.filrouge.leaphover;
+package com.filrouge.leaphover.game;
 
 import java.util.concurrent.Callable;
 
@@ -14,10 +14,8 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
-import com.filrouge.leaphover.experiments.CollisionDetector;
-import com.filrouge.leaphover.experiments.FollowCamera;
-import com.filrouge.leaphover.experiments.Hero;
-import com.filrouge.leaphover.experiments.HillGenerator;
+import com.filrouge.leaphover.level.HillGenerator;
+import com.filrouge.leaphover.physics.CollisionDetector;
 
 public class LeapHover implements ApplicationListener {
 	

@@ -1,4 +1,4 @@
-package com.filrouge.leaphover.experiments;
+package com.filrouge.leaphover.game;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
@@ -8,7 +8,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
-import com.filrouge.leaphover.LeapHover;
+import com.filrouge.leaphover.physics.HoverRayCastCallback;
+import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class Hero {
 	public static final float MAX_JUMP_FORCE = 0.1f;

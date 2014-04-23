@@ -6,9 +6,8 @@ import java.util.List;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
-import com.filrouge.leaphover.LeapHover;
-import com.filrouge.leaphover.experiments.Hero;
-import com.filrouge.leaphover.leapcontroller.LeapListener;
+import com.filrouge.leaphover.game.Hero;
+import com.filrouge.leaphover.game.LeapHover;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*

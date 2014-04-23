@@ -1,4 +1,4 @@
-package com.filrouge.leaphover.experiments;
+package com.filrouge.leaphover.game;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;

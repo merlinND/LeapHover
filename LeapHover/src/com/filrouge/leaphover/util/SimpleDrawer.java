@@ -1,4 +1,4 @@
-package com.filrouge.leaphover.experiments;
+package com.filrouge.leaphover.util;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;

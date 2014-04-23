@@ -1,10 +1,12 @@
-package com.filrouge.leaphover.leapcontroller;
+package com.filrouge.leaphover.experiments;
 
 import java.awt.Color;
 import java.awt.Graphics;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import com.filrouge.leaphover.input.LeapListener;
 
 public class HandPanel extends JPanel {
 

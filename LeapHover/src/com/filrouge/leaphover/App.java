@@ -2,6 +2,7 @@ package com.filrouge.leaphover;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.filrouge.leaphover.game.LeapHover;
 import com.filrouge.leaphover.input.InputHandler;
 import com.leapmotion.leap.Controller;
 

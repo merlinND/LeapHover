@@ -1,4 +1,4 @@
-package com.filrouge.leaphover.leapcontroller;
+package com.filrouge.leaphover.input;
 
 import com.leapmotion.leap.Controller;
 import com.leapmotion.leap.Frame;

@@ -1,6 +1,7 @@
 package com.filrouge.leaphover;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.filrouge.leaphover.game.LeapHover;
 
 public class Main {
 	
