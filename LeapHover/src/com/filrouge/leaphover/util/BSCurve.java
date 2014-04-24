@@ -1,6 +1,7 @@
 package com.filrouge.leaphover.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.badlogic.gdx.math.Vector2;
 
@@ -8,11 +9,12 @@ class PointList extends ArrayList<Vector2> {
 	private static final long serialVersionUID = -4654318152446499125L;
 
 	public String toString() {
-		String result = "";
+		StringBuilder builder = new StringBuilder();
 		for (Vector2 p : this) {
-			result += p + "\n";
+			builder.append(p);
+			builder.append("\n");
 		}
-		return result;
+		return builder.toString();
 	}
 }
 
@@ -34,7 +36,7 @@ public class BSCurve {
 	 * Useful for sampling with constant density. */
 	protected double length;
 	/** Ordered list of the curve's control points */
-	protected ArrayList<Vector2> controlPoints;
+	protected List<Vector2> controlPoints;
 	/** Nodal vector (by default, t_i = i)) */
 	//protected ArrayList<Point2D> nodalVector;
 	
@@ -46,13 +48,13 @@ public class BSCurve {
 		{-3, 0, 3, 0},
 		{1, 4, 1, 0}
 	};
-	protected ArrayList<PointList> cachedV;
+	protected List<PointList> cachedV;
 	
 	/* 
 	 * METHODS
 	 */
 	// Constructor
-	public BSCurve(ArrayList<Vector2> controlPoints) {
+	public BSCurve(List<Vector2> controlPoints) {
 		cachedV = new ArrayList<PointList>();
 		// TODO : need at least k control points
 		this.controlPoints = controlPoints;
