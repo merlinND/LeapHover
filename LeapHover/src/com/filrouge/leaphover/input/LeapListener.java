@@ -1,9 +1,10 @@
 package com.filrouge.leaphover.input;
 
-import com.leapmotion.leap.Controller;
-import com.leapmotion.leap.Frame;
-import com.leapmotion.leap.Hand;
-import com.leapmotion.leap.Listener;
+import com.badlogic.gdx.math.Vector2;
+import com.leapmotion.leap.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Our intermediate interface to process Leap Motion events
@@ -16,41 +17,105 @@ public abstract class LeapListener extends Listener
 	
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
+
+	private List<Vector2> drawingPoints;
+	private boolean isDrawing;
 	
 	@Override
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 
-		float maxHeight = frame.interactionBox().height();
-		
-		/*
-		 * Hand up/down movement 
-		 */
 		if (!frame.hands().isEmpty()) {
-		    // Get one hand
-			// TODO : Recognize which hand it is
-			Hand hand = frame.hands().get(0);
-			
-			if(hand.isValid()) {
-				float normalX = hand.palmNormal().get(0);
-				// "Flat" hand
-				// TODO : do we really want the hand to be "flat" ?
-		    	if(Math.abs(normalX) > MIN_HAND_ANGLE && Math.abs(normalX) < MAX_HAND_ANGLE) {
-		    		float y = hand.palmPosition().get(1);
-		    		y = Math.min(y, maxHeight);
-		    		
-		    		handHeight(y / maxHeight);
-		    	}
-		    	
-		    	float angle = - hand.palmNormal().pitch();
-		    	handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
+			Hand motionHand,
+				 drawingHand = null;
+
+			/*
+			 * Choosing appropriate hand
+			 */
+			if (frame.hands().count() == 2) {
+				// TODO : parameter which hand does which action
+				motionHand = frame.hands().leftmost();
+				drawingHand = frame.hands().rightmost();
+			}
+			else { // Only one hand: movement
+				motionHand = frame.hands().get(0);
+			}
+
+			/*
+			 * Hand up/down movement
+			 */
+			if (motionHand.isValid()) {
+				motion(motionHand, frame.interactionBox().height());
 		    }
+
+			if (drawingHand != null) {
+				draw(drawingHand);
+			}
 		}
 		else {
 			noHand();
 		}
 	}
-	
+
+	/**
+	 * Creation of the list of drawingPoints the hand draws
+	 */
+	private void draw (Hand drawingHand) {
+		PointableList pointables = drawingHand.pointables();
+		if (!pointables.isEmpty()) {
+			// Calculate the pointable front most Z coordinate
+			Vector frontPos = pointables.frontmost().tipPosition();
+			
+			/*
+			 * If there is a new touch (Z <= 0)
+			 */
+			if (!this.isDrawing) {
+				this.isDrawing = frontPos.getZ() <= 0;
+				if (this.isDrawing) { // New touch
+					System.out.println("New touch");
+					if (this.drawingPoints.size() > 0) {
+						this.drawingPoints = new ArrayList<Vector2>();
+					}
+				}
+			}
+			
+			else {
+				this.isDrawing = frontPos.getZ() <= 0;
+
+				this.drawingPoints.add(new Vector2(frontPos.getX(), frontPos.getY()));
+				
+				/*
+				 * If the drawing stopped (Z > 0)
+				 */
+				if (!this.isDrawing) {
+					System.out.println("Stopped touching");
+					System.out.println("Point list: [");
+					System.out.println(drawingPoints);
+					System.out.println("]");
+				}
+			}
+		}
+	}
+
+	/**
+	 * The movement of the hand means movement of the board
+	 */
+	private void motion (Hand motionHand, float maxHeight) {
+
+		float normalX = motionHand.palmNormal().get(0);
+		// "Flat" hand
+		// TODO : do we really want the hand to be "flat" ?
+		if(Math.abs(normalX) > MIN_HAND_ANGLE && Math.abs(normalX) < MAX_HAND_ANGLE) {
+			float y = motionHand.palmPosition().get(1);
+			y = Math.min(y, maxHeight);
+
+			handHeight(y / maxHeight);
+		}
+
+		float angle = - motionHand.palmNormal().pitch();
+		handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
+	}
+
 	/**
 	 * Process variations of one hand's height
 	 * @param percent
