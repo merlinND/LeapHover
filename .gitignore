@@ -1,14 +1,18 @@
-*.class
-*.classpath
-*/bin/*
+# Hidden files
+**/.*
+
+# IDE files
+**/*classpath
+**/*.iml
+
+# Binaries
+**/bin*
 
 # Libs
-*.dylib
-*/lib/*
+**/lib*
+**/*.dylib
 
 # Package Files #
-*.jar
-*.war
-*.ear
-
-.DS_Store
+**/*.jar
+**/*.war
+**/*.ear
