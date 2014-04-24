@@ -1,5 +1,6 @@
 package com.filrouge.leaphover.game;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
+import com.filrouge.leaphover.graphics.ThrusterEffect;
 import com.filrouge.leaphover.physics.HoverRayCastCallback;
 import com.filrouge.leaphover.util.SimpleDrawer;
 
@@ -30,6 +32,8 @@ public class Hero {
 	protected HoverRayCastCallback callbackFront;
 	protected HoverRayCastCallback callbackBack;
 	protected boolean isCloseToGround;
+	
+	protected ThrusterEffect thrusterFront, thrusterBack;
 	
 	public Hero(BodyDef bodyDefinition, World world, float side) {
 		this.body = world.createBody(bodyDefinition);
@@ -54,10 +58,15 @@ public class Hero {
 		callbackFront = new HoverRayCastCallback(this);
 		callbackBack = new HoverRayCastCallback(this);
 		isCloseToGround = false;
+		
+		// TODO: deduce scale from camera
+		thrusterFront = new ThrusterEffect(0.0005f);
+		thrusterBack = new ThrusterEffect(0.0005f);
 	}
 	
 	public void render(SpriteBatch batch) {
-		// TODO: use particle system to render thrust
+		thrusterFront.draw(batch, Gdx.graphics.getDeltaTime());
+		thrusterBack.draw(batch, Gdx.graphics.getDeltaTime());
 	}
 	
 	public void step() {
@@ -85,6 +94,14 @@ public class Hero {
 		this.isCloseToGround = false;
 		body.getWorld().rayCast(callbackFront, front, endOfRayFront);
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
+		
+		// Update the thruster's particle effect position
+		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.5f));
+		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
+		thrusterFront.setRotation(angle);
+		Vector2 backPosition = back.cpy().add(normal.cpy().scl(0.5f));
+		thrusterBack.setPosition(backPosition.x, backPosition.y);
+		thrusterBack.setRotation(angle);
 	}
 
 	/**
