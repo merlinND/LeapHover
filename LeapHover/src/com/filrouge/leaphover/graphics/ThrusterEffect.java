@@ -41,7 +41,7 @@ public class ThrusterEffect extends ParticleEffect {
 			float 	low = pe.getRotation().getLowMin(),
 					high = pe.getRotation().getHighMax(),
 					delta = (high - low);
-			System.out.println(low + " < " + high);
+
 			pe.getRotation().setLow(angle - (delta / 2));
 			pe.getRotation().setHigh(angle + (delta / 2));
 		}

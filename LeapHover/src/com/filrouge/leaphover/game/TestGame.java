@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.filrouge.leaphover.graphics.ThrusterEffect;
 
-class TestGame implements ApplicationListener {
+public class TestGame implements ApplicationListener {
 
 	ThrusterEffect effect;
 	
