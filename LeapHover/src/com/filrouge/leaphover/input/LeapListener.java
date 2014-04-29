@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Our intermediate interface to process Leap Motion events
- * @author Rémi Martin
+ * @author R��mi Martin
  */
 public abstract class LeapListener extends Listener
 {
@@ -18,7 +18,7 @@ public abstract class LeapListener extends Listener
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
 
-	private List<Vector2> drawingPoints;
+	private List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	private boolean isDrawing;
 	
 	@Override

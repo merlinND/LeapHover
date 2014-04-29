@@ -17,13 +17,13 @@ import com.filrouge.leaphover.util.SimpleDrawer;
 public class Hero {
 	public static final float MAX_LINEAR_VELOCITY = 1.5f;
 	
-	public static final float MAX_JUMP_FORCE = 0.3f;
+	public static final float MAX_JUMP_FORCE = 0.22f;
 	public static final boolean ALLOW_MID_AIR_JUMP = false;
 	
 	public static final float REACTOR_HEIGHT = 0.15f;
-	public static final float SPRING_CONSTANT = 0.1f;
-	public static final float MAX_SPRING_FORCE = 0.1f;
-	public static final float DAMPENING_FACTOR = 0.1f;
+	public static final float SPRING_CONSTANT = 0.15f;
+	public static final float MAX_SPRING_FORCE = 4f;
+	public static final float DAMPENING_FACTOR = 0.11f;
 	
 	protected Body body;
 	protected Fixture board, character;
@@ -145,8 +145,8 @@ public class Hero {
 	public void jump(float amount) {
 		if (canJump()) {
 			float angle = getBody().getAngle();
-			Vector2 force = new Vector2(- (float)Math.sin(angle),
-					 					-(float)Math.cos(angle));
+			Vector2 force = new Vector2((float)Math.sin(angle),
+					 					- (float)Math.cos(angle));
 			force = force.scl(amount * MAX_JUMP_FORCE);
 			getBody().applyForce(force, getPosition(), true);
 		}
