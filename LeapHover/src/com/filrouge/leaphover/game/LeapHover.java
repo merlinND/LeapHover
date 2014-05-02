@@ -198,6 +198,7 @@ public class LeapHover implements ApplicationListener {
 		// Clear screen
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		spriteBatch.begin();
 
 		// ----- Update game logic
 		step(Gdx.graphics.getDeltaTime());
@@ -205,12 +206,12 @@ public class LeapHover implements ApplicationListener {
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		
 		// ----- Do rendering
-		debugRenderer.render(world, camera.combined);
-		spriteBatch.begin();
 		hero.render(spriteBatch);
 		if (message.length() > 0)
 			displayFont.draw(spriteBatch, message, 100, 100);
 		spriteBatch.end();
+
+		debugRenderer.render(world, camera.combined);
 	}
 
 	@Override
