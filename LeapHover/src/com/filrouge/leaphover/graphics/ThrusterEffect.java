@@ -13,7 +13,13 @@ public class ThrusterEffect extends ParticleEffect {
 	 * METHODS
 	 */
 	public ThrusterEffect(float scale) {
-		load(Gdx.files.internal("effects/particles.p"), Gdx.files.internal("effects"));
+		load(Gdx.files.internal("effects/lines.p"), Gdx.files.internal("effects"));
+		
+		// We'll want to control the rotation / emission angle
+		for (ParticleEmitter pe : getEmitters()) {
+			pe.getAngle().setActive(true);
+			pe.getRotation().setActive(true);
+		}
 		
 		// Adjust scaling to fit viewport
 		float s = getEmitters().get(0).getScale().getHighMax();
@@ -34,16 +40,17 @@ public class ThrusterEffect extends ParticleEffect {
 	 * @param angle In radians
 	 */
 	public void setRotation(float angle) {
-		angle = (angle / (float)Math.PI) * 360f;
+		angle = (angle / (float)Math.PI) * 180f - 90;
 		
 		for (ParticleEmitter pe : getEmitters()) {
-			pe.getRotation().setActive(true);
-			float 	low = pe.getRotation().getLowMin(),
-					high = pe.getRotation().getHighMax(),
+			float 	low = pe.getAngle().getLowMin(),
+					high = pe.getAngle().getHighMax(),
 					delta = (high - low);
 
-			pe.getRotation().setLow(angle - (delta / 2));
-			pe.getRotation().setHigh(angle + (delta / 2));
+			pe.getAngle().setLow(angle - (delta / 2));
+			pe.getAngle().setHigh(angle + (delta / 2));
+			pe.getRotation().setLow(angle + 90 - (delta / 2));
+			pe.getRotation().setHigh(angle + 90 + (delta / 2));
 		}
 	}
 	

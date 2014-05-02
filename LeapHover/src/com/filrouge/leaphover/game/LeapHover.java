@@ -102,7 +102,7 @@ public class LeapHover implements ApplicationListener {
 
 	protected void setupTestScene() {
 		// Marty McFly
-		float side = camera.viewportHeight / 50f;
+		float side = camera.viewportHeight / 12f;
 		this.hero = new Hero(this.world, side);
 		this.hero.setPosition(new Vector2(camera.viewportWidth / 4f, camera.viewportHeight));
 		

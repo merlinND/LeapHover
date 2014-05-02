@@ -35,23 +35,23 @@ public class Hero {
 	
 	protected ThrusterEffect thrusterFront, thrusterBack;
 	
-	public Hero(World world, float side) {
+	public Hero(World world, float width) {
 		BodyDef bodyDefinition = new BodyDef();
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
 		bodyDefinition.angularDamping = 1f;
 		this.body = world.createBody(bodyDefinition);
-		this.boardWidth = side * 3.5f;
+		this.boardWidth = width;
 		
 		PolygonShape polygonShape = new PolygonShape();
 		// Create board
-		float boardHeight = side;
-		polygonShape.setAsBox(this.boardWidth, side);
+		float boardHeight = width / 7f;
+		polygonShape.setAsBox(this.boardWidth, boardHeight);
 		board = body.createFixture(polygonShape, 1);
 		
 		// Create character
-		float characterHeight = side * 1.5f;
+		float characterHeight = width / 2f;
 		Vector2 characterOffset = new Vector2(0, characterHeight + boardHeight);
-		polygonShape.setAsBox(side, characterHeight, characterOffset, 0f);
+		polygonShape.setAsBox(width / 5f, characterHeight, characterOffset, 0f);
 		// TODO: should the character have a density (and thus a mass)?
 		character = body.createFixture(polygonShape, 0);
 		
@@ -83,8 +83,8 @@ public class Hero {
 		Vector2 endOfRayBack = back.cpy().add(normal);
 		
 		// Debug display
-		SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), front, endOfRayFront);
-		SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), back, endOfRayBack);
+		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), front, endOfRayFront);
+		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), back, endOfRayBack);
 		
 		callbackFront.reset(front);
 		callbackBack.reset(back);
@@ -94,10 +94,11 @@ public class Hero {
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 		
 		// Update the thruster's particle effect position
-		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.5f));
+		// TODO: compute the angle relative to each thruster's position (≠ central angle)
+		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.1f));
 		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
 		thrusterFront.setRotation(angle);
-		Vector2 backPosition = back.cpy().add(normal.cpy().scl(0.5f));
+		Vector2 backPosition = back.cpy().add(normal.cpy().scl(0.1f));
 		thrusterBack.setPosition(backPosition.x, backPosition.y);
 		thrusterBack.setRotation(angle);
 	}
