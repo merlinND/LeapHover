@@ -35,7 +35,10 @@ public class Hero {
 	
 	protected ThrusterEffect thrusterFront, thrusterBack;
 	
-	public Hero(BodyDef bodyDefinition, World world, float side) {
+	public Hero(World world, float side) {
+		BodyDef bodyDefinition = new BodyDef();
+		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
+		bodyDefinition.angularDamping = 1f;
 		this.body = world.createBody(bodyDefinition);
 		this.boardWidth = side * 3.5f;
 		
@@ -64,13 +67,8 @@ public class Hero {
 		thrusterBack = new ThrusterEffect(0.0005f);
 	}
 	
-	public void render(SpriteBatch batch) {
-		thrusterFront.draw(batch, Gdx.graphics.getDeltaTime());
-		thrusterBack.draw(batch, Gdx.graphics.getDeltaTime());
-	}
-	
 	public void step() {
-		//make the ray at least as long as the target distance
+		// Make the ray at least as long as the target distance
 		Vector2 startOfRay = this.body.getWorldCenter();
 		float angle = this.body.getAngle();
 		
@@ -103,6 +101,11 @@ public class Hero {
 		thrusterBack.setPosition(backPosition.x, backPosition.y);
 		thrusterBack.setRotation(angle);
 	}
+	
+	public void render(SpriteBatch batch) {
+		thrusterFront.draw(batch, Gdx.graphics.getDeltaTime());
+		thrusterBack.draw(batch, Gdx.graphics.getDeltaTime());
+	}
 
 	/**
 	 * 
@@ -130,7 +133,8 @@ public class Hero {
 				force = force.nor().scl(MAX_SPRING_FORCE);
 			
 			body.applyForce(force, position, true);
-
+			
+			// Debug drawing
 			Vector2 end = position.cpy().add(force.cpy().scl(10f));
 			SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), position, end, Color.RED);
 		}
@@ -174,7 +178,9 @@ public class Hero {
 	public Vector2 getPosition() {
 		return body.getPosition();
 	}
-	
+	public void setPosition(Vector2 position) {
+		body.setTransform(position, body.getAngle());
+	}
 	/*
 	 * GETTERS & SETTERS
 	 */
@@ -186,5 +192,11 @@ public class Hero {
 	}
 	public Fixture getCharacter() {
 		return this.character;
+	}
+
+	public void resetTo(Vector2 position, float inclination) {
+		body.setTransform(position, inclination);
+		body.setLinearVelocity(new Vector2(0f, 0f));
+		body.setAngularVelocity(0);
 	}
 }

@@ -9,8 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
@@ -103,13 +101,10 @@ public class LeapHover implements ApplicationListener {
 	}
 
 	protected void setupTestScene() {
-		// Falling box
-		BodyDef bodyDefinition = new BodyDef();
-		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
-		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
+		// Marty McFly
 		float side = camera.viewportHeight / 50f;
-		
-		this.hero = new Hero(bodyDefinition, this.world, side);
+		this.hero = new Hero(this.world, side);
+		this.hero.setPosition(new Vector2(camera.viewportWidth / 4f, camera.viewportHeight));
 		
 		// Detect collisions with character
 		this.contactListener = new CollisionDetector(hero.getCharacter(), new Callable<Boolean>() {
@@ -146,11 +141,10 @@ public class LeapHover implements ApplicationListener {
 		this.lost = false;
 		this.message = "";
 		
+		// Move to the very beginning of the level
+		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
+		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
 		setHeroInclination(INITIAL_HERO_INCLINATION);
-		Body heroBody = this.hero.getBody();
-		heroBody.setTransform(camera.viewportHeight / 3f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
-		heroBody.setLinearVelocity(new Vector2(0f, 0f));
-		heroBody.setAngularVelocity(0);
 	}
 	public void loseGame() {
 		this.score = Math.pow(this.hero.getPosition().x, 1.2);
@@ -201,23 +195,21 @@ public class LeapHover implements ApplicationListener {
 	 */
 	@Override
 	public void render() {
-		step(Gdx.graphics.getDeltaTime());
-		
-		// Make the camera follow the hero
-		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
-
 		// Clear screen
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
-		debugRenderer.render(world, camera.combined);
 
+		// ----- Update game logic
+		step(Gdx.graphics.getDeltaTime());
+		// Make the camera follow the hero
+		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
+		
+		// ----- Do rendering
+		debugRenderer.render(world, camera.combined);
 		spriteBatch.begin();
 		hero.render(spriteBatch);
-
 		if (message.length() > 0)
 			displayFont.draw(spriteBatch, message, 100, 100);
-			
 		spriteBatch.end();
 	}
 
