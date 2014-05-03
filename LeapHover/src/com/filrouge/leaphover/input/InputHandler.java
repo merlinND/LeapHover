@@ -82,6 +82,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			this.numberOfLeapSamples = 0;
 		}
 		// Accumulate "force"
+		// TODO: make use of Hero.startChargingJump
+		// TODO: make jump charge directly proportional to hand height
 		else if(amount < 0.4) {
 			this.percentSum += 1 - amount;
 			++this.numberOfLeapSamples;
@@ -116,6 +118,15 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		case Input.Keys.ENTER:
 			game.retryLevel();
 			break;
+		// Charge jump
+		/*
+		 * TODO: if the hero can't actually start charging right now
+		 * but the player keeps the key down, we do want to start
+		 * charging as soon as possible
+		 */
+		case Input.Keys.DOWN:
+			game.getHero().startChargingJump();
+			break;
 			
 		default:
 			break;
@@ -128,7 +139,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		switch (keycode) {
 		// Trigger jump
 		case Input.Keys.DOWN:
-			makeJump(1f);
+			game.getHero().triggerJump();
 			break;
 
 		default:

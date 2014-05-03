@@ -15,26 +15,41 @@ import com.filrouge.leaphover.physics.HoverRayCastCallback;
 import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class Hero {
-	public static final float MAX_LINEAR_VELOCITY = 1.5f;
-	
-	public static final float MAX_JUMP_FORCE = 0.22f;
-	public static final boolean ALLOW_MID_AIR_JUMP = false;
-	
-	public static final float REACTOR_HEIGHT = 0.15f;
-	public static final float SPRING_CONSTANT = 0.15f;
-	public static final float MAX_SPRING_FORCE = 4f;
-	public static final float DAMPENING_FACTOR = 0.11f;
+	/* 
+	 * PROPERTIES
+	 */
+	public static final float MAX_LINEAR_VELOCITY = 1.0f;
 	
 	protected Body body;
 	protected Fixture board, character;
 	protected float boardWidth;
 	
+	// ----- Jump management
+	public static final float MAX_JUMP_CHARGE = 1f,
+							  JUMP_CHARGE_RATIO = 0.008f,
+							  MAX_JUMP_FORCE = 1.35f;
+	public static final boolean ALLOW_MID_AIR_JUMP = false;
+	public static final boolean ALLOW_DOUBLE_JUMP = false;
+	protected boolean isJumping = false, isChargingJump = false;
+	/** In number of calls of the <tt>step</tt> function */
+	protected int jumpSteps = 0, jumpDuration = 0;
+	
+	// ----- Spring effect
+	public static final float REACTOR_HEIGHT = 0.15f;
+	public static final float SPRING_CONSTANT = 0.15f;
+	public static final float MAX_SPRING_FORCE = 1f;
+	public static final float DAMPENING_FACTOR = 0.11f;	
 	protected HoverRayCastCallback callbackFront;
 	protected HoverRayCastCallback callbackBack;
+	protected float currentTargetHeight = REACTOR_HEIGHT;
 	protected boolean isCloseToGround;
 	
+	// ----- Graphical effects
 	protected ThrusterEffect thrusterFront, thrusterBack;
 	
+	/* 
+	 * METHODS
+	 */
 	public Hero(World world, float width) {
 		BodyDef bodyDefinition = new BodyDef();
 		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
@@ -68,6 +83,25 @@ public class Hero {
 	}
 	
 	public void step() {
+		// Manage jump charging and jump duration
+		if (isChargingJump) {
+			// TODO: check computations
+			// TODO: stop charging jump automatically when the ability to jump is lost
+			float charged = (jumpSteps * JUMP_CHARGE_RATIO);
+			charged = Math.min(charged, MAX_JUMP_CHARGE);
+			float p = 1f - (charged / MAX_JUMP_CHARGE);
+			p = Math.max(p, 0.3f);
+			currentTargetHeight = (p * REACTOR_HEIGHT);
+			
+			jumpSteps++;
+		}
+		else if (isJumping()) {
+			if (jumpSteps >= jumpDuration)
+				stopJumping();
+			else
+				jumpSteps++;
+		}
+		
 		// Make the ray at least as long as the target distance
 		Vector2 startOfRay = this.body.getWorldCenter();
 		float angle = this.body.getAngle();
@@ -77,8 +111,10 @@ public class Hero {
 		Vector2 back = new Vector2(startOfRay).add((float) (- this.boardWidth / 2*Math.cos(angle)), 
 													(float) (- this.boardWidth / 2*Math.sin(angle)));
 		
-		Vector2 normal = new Vector2(REACTOR_HEIGHT * (float)Math.sin(angle),
-									 - REACTOR_HEIGHT * (float)Math.cos(angle));
+		Vector2 normal = new Vector2((float)Math.sin(angle),
+									 - (float)Math.cos(angle));
+		normal.scl(currentTargetHeight);
+		
 		Vector2 endOfRayFront = front.cpy().add(normal);
 		Vector2 endOfRayBack = back.cpy().add(normal);
 		
@@ -95,6 +131,7 @@ public class Hero {
 		
 		// Update the thruster's particle effect position
 		// TODO: compute the angle relative to each thruster's position (≠ central angle)
+		// TODO: map ParticleEmitter.velocity to currentTargetHeight
 		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.1f));
 		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
 		thrusterFront.setRotation(angle);
@@ -107,9 +144,15 @@ public class Hero {
 		thrusterFront.draw(batch, Gdx.graphics.getDeltaTime());
 		thrusterBack.draw(batch, Gdx.graphics.getDeltaTime());
 	}
+	
+	public void resetTo(Vector2 position, float inclination) {
+		body.setTransform(position, inclination);
+		body.setLinearVelocity(new Vector2(0f, 0f));
+		body.setAngularVelocity(0);
+	}
 
 	/**
-	 * 
+	 * TODO: reduce "rebound" effect: the spring should not allow make us rebound after falling from a large height
 	 * @param position Point at which to apply the springing force
 	 * @param callback
 	 * @see http://www.iforce2d.net/b2dtut/suspension
@@ -119,20 +162,19 @@ public class Hero {
 		this.isCloseToGround = true;
 		
 		distanceToGround = Math.abs(distanceToGround);
-		if(distanceToGround < REACTOR_HEIGHT) {
+		if(distanceToGround < currentTargetHeight) {
 			// Dampening
 			// TODO : fix dampening computation to take into account both directions?
 			distanceToGround += DAMPENING_FACTOR * body.getLinearVelocity().y;
 			
-			float magnitude = SPRING_CONSTANT * (REACTOR_HEIGHT - distanceToGround);
-			magnitude = Math.abs(magnitude);
+			float magnitude = SPRING_CONSTANT * (currentTargetHeight - distanceToGround);
+			magnitude = Math.min(Math.abs(magnitude), MAX_SPRING_FORCE);
 			
 			float angle = getBody().getAngle();
 
-			Vector2 force = new Vector2(- magnitude * (float)Math.sin(angle), magnitude * (float)Math.cos(angle));
-			if (force.len() > MAX_SPRING_FORCE)
-				force = force.nor().scl(MAX_SPRING_FORCE);
-			
+			Vector2 force = new Vector2(- (float)Math.sin(angle),
+										  (float)Math.cos(angle));
+			force.scl(magnitude);
 			body.applyForce(force, position, true);
 			
 			// Debug drawing
@@ -142,32 +184,60 @@ public class Hero {
 	}
 	
 	/**
-	 * Jump perpendicular to current inclination
-	 * TODO: define unit of amount
-	 * TODO: change jump mechanism to take advantage of the spring effect
-	 * @param amount
+	 * Start accumulating "force" for the jump over time
+	 * @see #step()
 	 */
-	public void jump(float amount) {
+	public void startChargingJump() {
 		if (canJump()) {
-			float angle = getBody().getAngle();
-			Vector2 force = new Vector2((float)Math.sin(angle),
-					 					- (float)Math.cos(angle));
-			force = force.scl(amount * MAX_JUMP_FORCE);
-			getBody().applyForce(force, getPosition(), true);
+			this.isChargingJump = true;
 		}
 	}
+	
+	/**
+	 * Trigger the jump after having charged it
+	 * @see #startChargingJump()
+	 * @see #jump(float)
+	 */
+	public void triggerJump() {
+		jump(jumpSteps * JUMP_CHARGE_RATIO);
+	}
+	/**
+	 * Jump perpendicular to current inclination
+	 * @param amount A value in [0; 1]
+	 */
+	public void jump(float amount) {
+		this.isChargingJump = false;
+		this.jumpSteps = 0;
+		if (canJump()) {
+			this.jumpDuration = (int)(Gdx.graphics.getFramesPerSecond() * (float)amount);
+			this.isJumping = true;
+			this.currentTargetHeight = MAX_JUMP_FORCE * REACTOR_HEIGHT;
+		}
+		else
+			this.currentTargetHeight = REACTOR_HEIGHT;
+	}
+	public void stopJumping() {
+		this.jumpSteps = 0;
+		this.jumpDuration = 0;
+		this.isJumping = false;
+		this.isChargingJump = false;
+		this.currentTargetHeight = REACTOR_HEIGHT;
+	}
+	
 	/**
 	 * The hero can jump either if it is allowed to jump mid-air
 	 * or if it has at least one "reactor" close to the ground
 	 * @return
 	 */
 	public boolean canJump() {
+		if (!ALLOW_DOUBLE_JUMP && isJumping())
+			return false;
+			
 		if (ALLOW_MID_AIR_JUMP)
 			return true;
 		else
 			return isCloseToGround;
 	}
-	
 	
 	/*
 	 * METHOD DELEGATION
@@ -195,9 +265,7 @@ public class Hero {
 		return this.character;
 	}
 
-	public void resetTo(Vector2 position, float inclination) {
-		body.setTransform(position, inclination);
-		body.setLinearVelocity(new Vector2(0f, 0f));
-		body.setAngularVelocity(0);
+	public boolean isJumping() {
+		return this.isJumping;
 	}
 }
