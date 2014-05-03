@@ -24,7 +24,6 @@ public class TestGame implements ApplicationListener {
 
 	@Override
 	public void render() {
-		// TODO Auto-generated method stub
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);		
 		
@@ -35,25 +34,21 @@ public class TestGame implements ApplicationListener {
 		batch.begin();
 		effect.draw(batch, delta);
 		batch.end();
-		batch.flush();
 	}
 
 	@Override
 	public void pause() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void resume() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void dispose() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 }

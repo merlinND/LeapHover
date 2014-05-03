@@ -9,12 +9,10 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
-import com.filrouge.leaphover.level.HillGenerator;
+import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
 
 public class LeapHover implements ApplicationListener {
@@ -24,13 +22,16 @@ public class LeapHover implements ApplicationListener {
 	 */
 	protected World world;
 	
-	protected float worldWidth = 20f;
-	public final float BLOCK_WIDTH = 2f;
+	protected final float WORLD_GENERATION_THRESHOLD = 1f;
+	protected final float WORLD_CHUNK_WIDTH = 5 * WORLD_GENERATION_THRESHOLD;
+	protected float currentWorldWidth = 0f;
 	
 	protected FollowCamera camera;
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
 	protected Box2DDebugRenderer debugRenderer;
-	SpriteBatch spriteBatch;
+	protected SpriteBatch spriteBatch;
+	protected BitmapFont displayFont;
+	protected String message = "";
 	
 	/** Rates at which the physical simulation advances */
 	public static final Vector2 GRAVITY = new Vector2(0, -1f);
@@ -87,35 +88,23 @@ public class LeapHover implements ApplicationListener {
 				
 		camera = new FollowCamera(1, h/w);
 		initialCameraPosition = new Vector3(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0f);
-		maximumCameraPosition = new Vector3(worldWidth - (camera.viewportWidth / 2f), camera.viewportHeight / 2f, 0f);
+
 		camera.position.set(initialCameraPosition);
 		camera.update();
 		
 		debugRenderer = new Box2DDebugRenderer();
 		spriteBatch = new SpriteBatch();
+		displayFont = new BitmapFont();
+		displayFont.setScale(3f);
 		
 		setupTestScene();
 	}
 
 	protected void setupTestScene() {
-		// Ground
-		BodyDef bodyDefinition = new BodyDef();
-		bodyDefinition.type = BodyDef.BodyType.StaticBody;
-		// Generate independant hills, each one with width BLOCK_WIDTH
-		// so as to fill this.worldWidth
-		int n = (int) (worldWidth / BLOCK_WIDTH);
-		for (int i = 0; i < n; i++) {
-			bodyDefinition.position.set(i * BLOCK_WIDTH, 0);
-			Body groundBody = world.createBody(bodyDefinition);
-			HillGenerator.makeHill(groundBody, BLOCK_WIDTH, camera.viewportHeight);
-		}
-		
-		// Falling box
-		bodyDefinition.type = BodyDef.BodyType.DynamicBody;
-		bodyDefinition.position.set(camera.viewportWidth / 4f, camera.viewportHeight);
-		float side = camera.viewportHeight / 50f;
-		
-		this.hero = new Hero(bodyDefinition, this.world, side);
+		// Marty McFly
+		float side = camera.viewportHeight / 12f;
+		this.hero = new Hero(this.world, side);
+		this.hero.setPosition(new Vector2(camera.viewportWidth / 4f, camera.viewportHeight));
 		
 		// Detect collisions with character
 		this.contactListener = new CollisionDetector(hero.getCharacter(), new Callable<Boolean>() {
@@ -126,22 +115,43 @@ public class LeapHover implements ApplicationListener {
 			}
 		});
 		world.setContactListener(this.contactListener);
+		
+		// Ground
+		extendWorldIfNecessary();
+	}
+	
+	protected void extendWorldIfNecessary() {
+		float distanceToEnd = currentWorldWidth - hero.getPosition().x;
+		if (Math.max(0, distanceToEnd) < WORLD_GENERATION_THRESHOLD) {
+			// TODO: leave space between current world end and next world begin
+			LevelGenerator.generate(world, currentWorldWidth, currentWorldWidth + WORLD_CHUNK_WIDTH, camera.viewportHeight);
+			currentWorldWidth += WORLD_CHUNK_WIDTH;
+			
+			// Update the camera max x position
+			float maxX = currentWorldWidth - (camera.viewportWidth / 2f);
+			maxX = Math.max(camera.viewportWidth, maxX);
+			maximumCameraPosition = new Vector3(maxX, camera.viewportHeight / 2f, 0f);
+			
+			System.out.println("Generated world up to " + currentWorldWidth);
+		}
 	}
 	
 	public void retryLevel() {
 		this.paused = false;
 		this.lost = false;
+		this.message = "";
 		
+		// Move to the very beginning of the level
+		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
+		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
 		setHeroInclination(INITIAL_HERO_INCLINATION);
-		Body heroBody = this.hero.getBody();
-		heroBody.setTransform(0.1f, camera.viewportHeight, INITIAL_HERO_INCLINATION);
-		heroBody.setLinearVelocity(new Vector2(0f, 0f));
-		heroBody.setAngularVelocity(0);
 	}
 	public void loseGame() {
 		this.score = Math.pow(this.hero.getPosition().x, 1.2);
 		this.paused = true;
 		this.lost = true;
+		
+		this.message = "You lost the game. Your scored : " + Math.round(this.score) + " points.";
 	}
 	
 	@Override
@@ -149,21 +159,20 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer.dispose();
 	}
 	
-	@Override
-	public void render() {		
-		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
-		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+	/**
+	 * Contains all game logic
+	 * @param delta
+	 */
+	public void step(float delta) {
 		// If hero gets off screen, reset its position
+		// TODO: remove for real gameplay
 		if (hero.getPosition().y < -0.5f) {
 			retryLevel();
 		}
 		
-		// Make the camera follow the hero
-		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
-		debugRenderer.render(world, camera.combined);
-
-		spriteBatch.begin();
+		// Level streaming: generate more level if needed
+		extendWorldIfNecessary();
+		
 		if(!this.paused) {
 			hero.step();
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
@@ -178,16 +187,31 @@ public class LeapHover implements ApplicationListener {
 				velocity = velocity.nor().scl(Hero.MAX_LINEAR_VELOCITY);
 				hero.getBody().setLinearVelocity(velocity);
 			}
-			
-			hero.render(spriteBatch);
 		}
-		if (this.lost) {
-			BitmapFont font = new BitmapFont();
-			font.setScale(3f);
-			String str="You lost the game. Your scored : " + Math.round(this.score) + " points.";
-			font.draw(spriteBatch, str, 100, 100);
-		}
+	}
+	
+	/**
+	 * Contains <strong>only</strong> display-related code
+	 */
+	@Override
+	public void render() {
+		// Clear screen
+		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
+		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		spriteBatch.begin();
+
+		// ----- Update game logic
+		step(Gdx.graphics.getDeltaTime());
+		// Make the camera follow the hero
+		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
+		
+		// ----- Do rendering
+		hero.render(spriteBatch);
+		if (message.length() > 0)
+			displayFont.draw(spriteBatch, message, 100, 100);
 		spriteBatch.end();
+
+		debugRenderer.render(world, camera.combined);
 	}
 
 	@Override

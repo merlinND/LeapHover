@@ -29,25 +29,33 @@ public class HillGenerator {
 	 * Add fixtures to the given body so as to make a hill (no underside).
 	 * The hill spans from 0 to width horizontally
 	 * and from 0 to height vertically.
-	 * @param body
-	 * @param width
-	 * @param height
+	 * @see #makeHill(Body body, float width, float height, Vector2 offset, float smoothness, float thickness)
 	 */
-	public static void makeHill(Body body, float width, float height) {
-		makeHill(body, width, height, 0);
+	public static void makeHill(Body body, float width, float height, float smoothness) {
+		makeHill(body, width, height, new Vector2(), smoothness);
 	}
 
 	/**
+	 * Make a hill from the given point.
+	 * @see #makeHill(Body body, float width, float height, Vector2 offset, float smoothness, float thickness)
+	 */
+	public static void makeHill(Body body, float width, float height, Vector2 offset, float smoothness) {
+		makeHill(body, width, height, offset, smoothness, 0);
+	}
+	
+	/**
 	 * Make a hill with an underside to create a thickness.
-	 * @see #makeHill(Body body, float width, float height)
 	 * @param body
 	 * @param width
 	 * @param height
+	 * @param offset Start from the point offset (will never go left or below that point)
+	 * @parma smoothness
+	 * @param thickness
 	 */
-	public static void makeHill(Body body, float width, float height, float thickness) {
+	public static void makeHill(Body body, float width, float height, Vector2 offset, float smoothness, float thickness) {
 
 		// Test control points (at least this.degree)
-		ArrayList<Vector2> controlPoints = getRandomControlPoints(0, width, 0, height);
+		ArrayList<Vector2> controlPoints = getHillControlPoints(smoothness, offset.x, width, offset.y, height);
 
 		// TODO : choose the number of samples in a smart way (proportional to the number of control points ?)
 		int n = NUMBER_OF_SAMPLES;
@@ -65,7 +73,7 @@ public class HillGenerator {
 			previous = vertices[i];
 		}
 		// Below side
-		if (thickness > 0f) {
+		if (thickness > 0) {
 			Vector2 thicknessVector = new Vector2(0, - thickness);
 			previous.add(thicknessVector);
 			for(int i = n - 2; i >= 0; --i) {
@@ -82,14 +90,10 @@ public class HillGenerator {
 	/**
 	 * Return a random number of control points.
 	 * The number of control points is comprised between MIN_CONTROL_POINTS and MAX_CONTROL_POINTS
-	 * @see #getRandomControlPoints(int n, float xMin, float xMax, float yMin, float yMax)
-	 * @param xMin
-	 * @param xMax
-	 * @param yMin
-	 * @param yMax
+	 * @see #getHillControlPoints(int n, float xMin, float xMax, float yMin, float yMax)
 	 * @return
 	 */
-	protected static ArrayList<Vector2> getRandomControlPoints(float xMin, float xMax, float yMin, float yMax) {
+	protected static ArrayList<Vector2> getHillControlPoints(float smoothness, float xMin, float xMax, float yMin, float yMax) {
 		// Compute n so as to have a constant horizontal density of control points
 
 		int n = (int) ( (xMax - xMin) * 3f);
@@ -98,19 +102,20 @@ public class HillGenerator {
 		n = (n > MAX_CONTROL_POINTS ? MAX_CONTROL_POINTS : n);
 
 		n = (n % 2 == 0 ? n+1 : n); // Make sure n is odd
-		return getRandomControlPoints(n, xMin, xMax, yMin, yMax);
+		return getHillControlPoints(n, smoothness, xMin, xMax, yMin, yMax);
 	}
 	/**
 	 * Return homogeneously horizontally spaced control points. 
 	 * The vertical position is chosen at random between yMin and yMax for each point.
 	 * @param n The number of control points to generate
+	 * @param smoothness The larger, the smoother the hills TODO: check that it is actually this way
 	 * @param xMin The horizontal position of the first control point
 	 * @param xMax The horizontal position of the last control point
 	 * @param yMin
 	 * @param yMax
 	 * @return
 	 */
-	protected static ArrayList<Vector2> getRandomControlPoints(int n, float xMin, float xMax, float yMin, float yMax) {
+	protected static ArrayList<Vector2> getHillControlPoints(int n, float smoothness, float xMin, float xMax, float yMin, float yMax) {
 		// Our working array
 		Vector2[] points = new Vector2[n];
 
@@ -124,8 +129,8 @@ public class HillGenerator {
 		}
 
 		// Apply midpoint displacement algorithm
-		float range = ((yMax - yMin) / 2f);
-		applyMidpointDisplacement(points, 0, n, range, 0);
+		float range = ((yMax - yMin) / smoothness);
+		applyMidpointDisplacement(points, 0, n, range, yMin);
 
 		// Create output
 		ArrayList<Vector2> controlPoints = new ArrayList<Vector2>();
@@ -133,8 +138,8 @@ public class HillGenerator {
 			// The first and last point must be interpolated strongly
 			if (i == 0 || i == (n-1)) {
 				// Force first and last control points to minimal position
-				// TODO : remove that
-				points[i].y = 0;
+				// TODO: find more elegant solution?
+				points[i].y = yMin;
 				controlPoints.add(points[i]);
 				controlPoints.add(points[i].cpy());
 				controlPoints.add(points[i].cpy());
