@@ -43,6 +43,7 @@ public class Hero {
 	protected HoverRayCastCallback callbackBack;
 	protected float currentTargetHeight = REACTOR_HEIGHT;
 	protected boolean isCloseToGround;
+	protected float currentHandHeight = 1f;
 	
 	// ----- Graphical effects
 	protected ThrusterEffect thrusterFront, thrusterBack;
@@ -87,11 +88,15 @@ public class Hero {
 		if (isChargingJump) {
 			// TODO: check computations
 			// TODO: stop charging jump automatically when the ability to jump is lost
-			float charged = (jumpSteps * JUMP_CHARGE_RATIO);
+			
+			/*float charged = (jumpSteps * JUMP_CHARGE_RATIO);
 			charged = Math.min(charged, MAX_JUMP_CHARGE);
 			float p = 1f - (charged / MAX_JUMP_CHARGE);
 			p = Math.max(p, 0.3f);
-			currentTargetHeight = (p * REACTOR_HEIGHT);
+			currentTargetHeight = (p * REACTOR_HEIGHT);*/
+			
+			// The jump charge depends on the current height of the hand
+			this.currentTargetHeight=0.25f*this.currentHandHeight;
 			
 			jumpSteps++;
 		}
@@ -130,7 +135,7 @@ public class Hero {
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 		
 		// Update the thruster's particle effect position
-		// TODO: compute the angle relative to each thruster's position (≠ central angle)
+		// TODO: compute the angle relative to each thruster's position (��� central angle)
 		// TODO: map ParticleEmitter.velocity to currentTargetHeight
 		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.1f));
 		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
@@ -251,6 +256,10 @@ public class Hero {
 	}
 	public void setPosition(Vector2 position) {
 		body.setTransform(position, body.getAngle());
+	}
+	
+	public void setCurrentHandHeight(float handHeight) {
+		this.currentHandHeight=handHeight;
 	}
 	/*
 	 * GETTERS & SETTERS

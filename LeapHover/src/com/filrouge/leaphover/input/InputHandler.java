@@ -6,6 +6,7 @@ import java.util.List;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.filrouge.leaphover.game.LeapHover;
+import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
@@ -16,7 +17,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	/** Number of cycles of hand being "down" */
 	protected int numberOfLeapSamples = 0;
 	/** Used to accumulate received hand heights and then compute an average */
-	protected int percentSum = 0;
+	protected float percentSum = 0;
 	
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
@@ -73,9 +74,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean handHeight(float amount) {
 		// Trigger jump
+		System.out.println(amount);
 		if(amount >= 0.5 && this.numberOfLeapSamples > 0) {
 			float averageHeight = this.percentSum / this.numberOfLeapSamples;
-			System.out.println(amount + " jump " + averageHeight);
 			makeJump(averageHeight);
 
 			// Reset counters for next jump
@@ -83,10 +84,13 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			this.numberOfLeapSamples = 0;
 		}
 		// Accumulate "force"
-		// TODO: make use of Hero.startChargingJump
 		// TODO: make jump charge directly proportional to hand height
-		else if(amount < 0.4) {
+		else if(amount <= 0.4) {
+			if(this.percentSum==0) {
+				this.game.getHero().startChargingJump();
+			}
 			this.percentSum += 1 - amount;
+			game.getHero().setCurrentHandHeight(amount);
 			++this.numberOfLeapSamples;
 		}
 		
@@ -96,7 +100,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean handInclination(float percent) {
 		float convertedAngle = (0.5f - percent) * (float)Math.PI;
-		makeInclination(convertedAngle);
+		//makeInclination(convertedAngle);
 		
 		return false;
 	}

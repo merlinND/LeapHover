@@ -46,7 +46,7 @@ public class LevelGenerator {
 			float minY = (height / 10f);
 			
 			float smoothness = getSmoothnessAtPosition(beginX);
-			System.out.println("This block starting at " + beginX + " has smoothness " + smoothness);
+			//System.out.println("This block starting at " + beginX + " has smoothness " + smoothness);
 			bodyDefinition.position.set(beginX, 0);
 			Body groundBody = world.createBody(bodyDefinition);
 			HillGenerator.makeHill(groundBody, BLOCK_WIDTH, height, new Vector2(0f, minY), smoothness);

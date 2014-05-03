@@ -20,12 +20,14 @@ public abstract class LeapListener extends Listener
 
 	private List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	private boolean isDrawing;
+	private boolean handBefore=false;
 	
 	@Override
 	public void onFrame(Controller controller) {
 		Frame frame = controller.frame();
 
 		if (!frame.hands().isEmpty()) {
+			this.handBefore=true;
 			Hand motionHand,
 				 drawingHand = null;
 
@@ -139,6 +141,10 @@ public abstract class LeapListener extends Listener
 	 * @return
 	 */
 	public boolean noHand() {
+		if(this.handBefore) {
+			handHeight(1);
+			this.handBefore=false;
+		}
 		return false;
 	}
 }
