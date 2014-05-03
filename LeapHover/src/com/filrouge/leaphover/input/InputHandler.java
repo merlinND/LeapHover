@@ -75,6 +75,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		// Trigger jump
 		if(amount >= 0.5 && this.numberOfLeapSamples > 0) {
 			float averageHeight = this.percentSum / this.numberOfLeapSamples;
+			System.out.println(amount + " jump " + averageHeight);
 			makeJump(averageHeight);
 
 			// Reset counters for next jump
