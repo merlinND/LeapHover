@@ -86,7 +86,6 @@ public class Hero {
 	}
 	
 	public void step() {
-		System.out.println(this.getBody().getPosition().x);
 		// Manage jump charging and jump duration
 		if (isChargingJump) {
 			// TODO: check computations
@@ -100,7 +99,7 @@ public class Hero {
 			
 			// The jump charge depends on the current height of the hand
 			if(this.getBody().getPosition().x - this.chargingBeginningX < Hero.MAX_DIST_CHARGE) {
-				this.currentTargetHeight=0.25f*this.currentHandHeight;
+				this.currentTargetHeight = 0.25f*this.currentHandHeight;
 			
 				jumpSteps++;
 			} else {
@@ -121,10 +120,10 @@ public class Hero {
 		Vector2 front = new Vector2(startOfRay).add((float) (this.boardWidth / 2*Math.cos(angle)), 
 													(float) (this.boardWidth / 2*Math.sin(angle)));
 		Vector2 back = new Vector2(startOfRay).add((float) (- this.boardWidth / 2*Math.cos(angle)), 
-													(float) (- this.boardWidth / 2*Math.sin(angle)));
+												   (float) (- this.boardWidth / 2*Math.sin(angle)));
 		
 		Vector2 normal = new Vector2((float)Math.sin(angle),
-									 - (float)Math.cos(angle));
+								   - (float)Math.cos(angle));
 		normal.scl(currentTargetHeight);
 		
 		Vector2 endOfRayFront = front.cpy().add(normal);
@@ -142,7 +141,7 @@ public class Hero {
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 		
 		// Update the thruster's particle effect position
-		// TODO: compute the angle relative to each thruster's position (��� central angle)
+		// TODO: compute the angle relative to each thruster's position (≠ central angle)
 		// TODO: map ParticleEmitter.velocity to currentTargetHeight
 		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.1f));
 		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
@@ -201,7 +200,7 @@ public class Hero {
 	 */
 	public void startChargingJump() {
 		if (canJump()) {
-			this.chargingBeginningX=this.getBody().getPosition().x;
+			this.chargingBeginningX = this.getBody().getPosition().x;
 			this.isChargingJump = true;
 		}
 	}

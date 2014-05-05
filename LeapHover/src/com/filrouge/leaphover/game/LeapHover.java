@@ -72,11 +72,11 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	private static class SingletonHolder {
-		/** Instance unique non pr��initialis��e */
+		/** Instance unique non préinitialisée */
 		private final static LeapHover instance = new LeapHover();
 	}
 	/** 
-	 * R��cup��rer l'unique instance de ce LeapHover (pattern Singleton)
+	 * Récupérer l'unique instance de ce LeapHover (pattern Singleton)
 	 * Source : http://thecodersbreakfast.net/index.php?post/2008/02/25/26-de-la-bonne-implementation-du-singleton-en-java
 	 */
 	public static LeapHover getInstance() {

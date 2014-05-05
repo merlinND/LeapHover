@@ -6,7 +6,6 @@ import java.util.List;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.filrouge.leaphover.game.LeapHover;
-import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
@@ -21,7 +20,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
-	protected final float ANGLE_CONTRIBUTION_RATIO = 0.08f;
+	protected final float ANGLE_CONTRIBUTION_RATIO = 0.2f;
 	
 	/* 
 	 * METHODS
@@ -84,10 +83,10 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		}
 		// Accumulate "force"
 		else if(amount <= 0.4) {
-			if(this.percentSum==0) {
+			if(this.percentSum == 0)
 				this.game.getHero().startChargingJump();
-			}
-			this.percentSum += 1 - amount;
+
+			this.percentSum += (1 - amount);
 			game.getHero().setCurrentHandHeight(amount);
 			++this.numberOfLeapSamples;
 		}
@@ -153,37 +152,31 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 	@Override
 	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

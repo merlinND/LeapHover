@@ -6,16 +6,16 @@ public class Trick {
 	 */
 	private static final float POINTS_FOR_LOOP		= 10f;
 	
-	/** Hand down constants */
+	/** Head down constants */
 	private static final float POINTS_FOR_HEAD_DOWN	= 10f;
 	private static final int MIN_ANGLE_HEAD_DOWN	= 160;
-	private static final int MAX_ANGLE_HEAD_DOWN	= 180;
+	private static final int MAX_ANGLE_HEAD_DOWN	= 200;
 	
 	protected Score score;
 	
 	// Constructor(s)
 	public Trick(Score score) {
-		this.score=score;
+		this.score = score;
 	}
 	
 	// Method(s)
@@ -28,6 +28,8 @@ public class Trick {
 		if(floorAngle >= MIN_ANGLE_HEAD_DOWN && floorAngle <= MAX_ANGLE_HEAD_DOWN) {
 			// Head down, yeah! Feels great!
 			this.score.performedTrick(POINTS_FOR_HEAD_DOWN);
+			// TODO: replace by an onscreen visual cue
+			System.out.println("Head down detected (" + angle + " degrees), " + POINTS_FOR_HEAD_DOWN + " points added!");
 		}
 	}
 }
