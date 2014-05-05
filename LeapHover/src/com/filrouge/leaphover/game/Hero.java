@@ -33,6 +33,8 @@ public class Hero {
 	protected boolean isJumping = false, isChargingJump = false;
 	/** In number of calls of the <tt>step</tt> function */
 	protected int jumpSteps = 0, jumpDuration = 0;
+	protected float chargingBeginningX = 0;
+	protected static final float MAX_DIST_CHARGE = 2;
 	
 	// ----- Spring effect
 	public static final float REACTOR_HEIGHT = 0.15f;
@@ -84,6 +86,7 @@ public class Hero {
 	}
 	
 	public void step() {
+		System.out.println(this.getBody().getPosition().x);
 		// Manage jump charging and jump duration
 		if (isChargingJump) {
 			// TODO: check computations
@@ -96,9 +99,13 @@ public class Hero {
 			currentTargetHeight = (p * REACTOR_HEIGHT);*/
 			
 			// The jump charge depends on the current height of the hand
-			this.currentTargetHeight=0.25f*this.currentHandHeight;
+			if(this.getBody().getPosition().x - this.chargingBeginningX < Hero.MAX_DIST_CHARGE) {
+				this.currentTargetHeight=0.25f*this.currentHandHeight;
 			
-			jumpSteps++;
+				jumpSteps++;
+			} else {
+				triggerJump();
+			}
 		}
 		else if (isJumping()) {
 			if (jumpSteps >= jumpDuration)
@@ -194,6 +201,7 @@ public class Hero {
 	 */
 	public void startChargingJump() {
 		if (canJump()) {
+			this.chargingBeginningX=this.getBody().getPosition().x;
 			this.isChargingJump = true;
 		}
 	}

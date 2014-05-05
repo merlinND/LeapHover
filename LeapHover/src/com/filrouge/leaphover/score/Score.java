@@ -11,13 +11,13 @@ public class Score {
 	 * Exponent at the beginning of the game
 	 * TODO : Inc exponent over the levels?
 	 */
-	private static final float 	startExponent 	= 	1.2f;
+	private static final float 	START_EXPONENT 	= 	1.2f;
 	
 	/**
 	 * Start & reset level
 	 */
-	private static final int 	initialLevel 	= 	0;
-	private static final int 	resetLevel		=	1;
+	private static final int 	INITIAL_LEVEL 	= 	0;
+	private static final int 	RESET_LEVEL		=	1;
 	
 	protected float score;
 	protected int level;
@@ -28,10 +28,10 @@ public class Score {
 	
 	// Constructor(s)
 	public Score() {
-		this.level 		= Score.initialLevel;
+		this.level 		= Score.INITIAL_LEVEL;
 		this.score 		= 0;
 		this.lastX 		= 0;
-		this.exponent 	= Score.startExponent;
+		this.exponent 	= Score.START_EXPONENT;
 	}
 	
 	// Getter(s)
@@ -63,10 +63,10 @@ public class Score {
 	}
 	
 	public void reset() {
-		this.level=Score.resetLevel;
+		this.level=Score.RESET_LEVEL;
 		this.lastX=0;
 		this.score=0;
-		this.exponent=Score.startExponent;
+		this.exponent=Score.START_EXPONENT;
 	}
 	
 	/**

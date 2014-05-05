@@ -37,8 +37,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	/**
 	 * @param amount Value in [0,1]
 	 */
-	public void makeJump(float amount) {
-		game.getHero().jump(amount);
+	public void makeJump() {
+		game.getHero().triggerJump();
 	}
 	
 	public void makeInclination(float angle) {
@@ -74,17 +74,15 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean handHeight(float amount) {
 		// Trigger jump
-		System.out.println(amount);
 		if(amount >= 0.5 && this.numberOfLeapSamples > 0) {
-			float averageHeight = this.percentSum / this.numberOfLeapSamples;
-			makeJump(averageHeight);
+			//float averageHeight = this.percentSum / this.numberOfLeapSamples;
+			makeJump();
 
 			// Reset counters for next jump
 			this.percentSum = 0;
 			this.numberOfLeapSamples = 0;
 		}
 		// Accumulate "force"
-		// TODO: make jump charge directly proportional to hand height
 		else if(amount <= 0.4) {
 			if(this.percentSum==0) {
 				this.game.getHero().startChargingJump();
@@ -100,7 +98,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean handInclination(float percent) {
 		float convertedAngle = (0.5f - percent) * (float)Math.PI;
-		//makeInclination(convertedAngle);
+		makeInclination(convertedAngle);
 		
 		return false;
 	}
