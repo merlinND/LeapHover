@@ -2,8 +2,6 @@ package com.filrouge.leaphover.game;
 
 import java.util.concurrent.Callable;
 
-import score.Score;
-
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
@@ -16,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
+import com.filrouge.leaphover.score.Score;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -178,6 +177,8 @@ public class LeapHover implements ApplicationListener {
 		if (hero.getPosition().y < -0.5f) {
 			retryLevel();
 		}
+		
+		System.out.println(this.heroInclination*180/Math.PI);
 		
 		// Level streaming: generate more level if needed
 		extendWorldIfNecessary();

@@ -1,4 +1,4 @@
-package score;
+package com.filrouge.leaphover.score;
 
 /**
  *	Basic Class which handles score
@@ -24,17 +24,20 @@ public class Score {
 	protected float exponent;
 	protected float lastX;
 	
+	protected Trick trick;
+	
 	// Constructor(s)
 	public Score() {
-		this.level = Score.initialLevel;
-		this.score = 0;
-		this.lastX = 0;
-		this.exponent = Score.startExponent;
+		this.level 		= Score.initialLevel;
+		this.score 		= 0;
+		this.lastX 		= 0;
+		this.exponent 	= Score.startExponent;
+		this.trick		= new Trick(this);
 	}
 	
 	// Getter(s)
 	public float getScore() {
-		return this.level;
+		return this.score;
 	}
 	
 	// Setter(s)
@@ -65,5 +68,16 @@ public class Score {
 		this.lastX=0;
 		this.score=0;
 		this.exponent=Score.startExponent;
+	}
+	
+	/**
+	 * A new trick has been performed. Score points are added to the global score.
+	 * @param points
+	 * 
+	 * TODO : Multiply points by level ?
+	 * TODO : Apply pow on points ?
+	 */
+	public void performedTrick(float points) {
+		this.score+=points;
 	}
 }
