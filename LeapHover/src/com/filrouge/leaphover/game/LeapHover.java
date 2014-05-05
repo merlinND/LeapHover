@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.score.Score;
+import com.filrouge.leaphover.score.Trick;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -53,6 +54,7 @@ public class LeapHover implements ApplicationListener {
 	
 	/** Score when the user loose the game */
 	protected Score score;
+	protected Trick trick;
 	
 	/**
 	 * Contact handler (detect collisions of the character with the environment)
@@ -65,7 +67,8 @@ public class LeapHover implements ApplicationListener {
 	 */
 	/** Private constructor (LeapHover is a Singleton) */
 	private LeapHover() {
-		this.score=new Score();
+		this.score = new Score();
+		this.trick = new Trick(this.score);
 	}
 	
 	private static class SingletonHolder {
@@ -178,7 +181,7 @@ public class LeapHover implements ApplicationListener {
 			retryLevel();
 		}
 		
-		System.out.println(this.heroInclination*180/Math.PI);
+		this.trick.newAngle((float) (this.heroInclination*180f/Math.PI));
 		
 		// Level streaming: generate more level if needed
 		extendWorldIfNecessary();

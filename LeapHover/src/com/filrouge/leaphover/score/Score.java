@@ -32,7 +32,6 @@ public class Score {
 		this.score 		= 0;
 		this.lastX 		= 0;
 		this.exponent 	= Score.startExponent;
-		this.trick		= new Trick(this);
 	}
 	
 	// Getter(s)
