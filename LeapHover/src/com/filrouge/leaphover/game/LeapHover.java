@@ -51,7 +51,7 @@ public class LeapHover implements ApplicationListener {
 	protected boolean lost = false;
 	
 	/** Score when the user loose the game */
-	protected double score = 0;
+	protected Score score;
 	
 	/**
 	 * Contact handler (detect collisions of the character with the environment)
@@ -64,14 +64,15 @@ public class LeapHover implements ApplicationListener {
 	 */
 	/** Private constructor (LeapHover is a Singleton) */
 	private LeapHover() {
-		
+		this.score=new Score();
 	}
+	
 	private static class SingletonHolder {
-		/** Instance unique non préinitialisée */
+		/** Instance unique non pr��initialis��e */
 		private final static LeapHover instance = new LeapHover();
 	}
 	/** 
-	 * Récupérer l'unique instance de ce LeapHover (pattern Singleton)
+	 * R��cup��rer l'unique instance de ce LeapHover (pattern Singleton)
 	 * Source : http://thecodersbreakfast.net/index.php?post/2008/02/25/26-de-la-bonne-implementation-du-singleton-en-java
 	 */
 	public static LeapHover getInstance() {
@@ -123,6 +124,8 @@ public class LeapHover implements ApplicationListener {
 	protected void extendWorldIfNecessary() {
 		float distanceToEnd = currentWorldWidth - hero.getPosition().x;
 		if (Math.max(0, distanceToEnd) < WORLD_GENERATION_THRESHOLD) {
+			this.score.incLevel(this.hero.getPosition().x);
+			
 			// TODO: leave space between current world end and next world begin
 			LevelGenerator.generate(world, currentWorldWidth, currentWorldWidth + WORLD_CHUNK_WIDTH, camera.viewportHeight);
 			currentWorldWidth += WORLD_CHUNK_WIDTH;
@@ -137,6 +140,7 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void retryLevel() {
+		this.score.reset();
 		this.paused = false;
 		this.lost = false;
 		this.message = "";
@@ -146,12 +150,15 @@ public class LeapHover implements ApplicationListener {
 		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
 		setHeroInclination(INITIAL_HERO_INCLINATION);
 	}
+	
 	public void loseGame() {
-		this.score = Math.pow(this.hero.getPosition().x, 1.2);
+		this.score.computeCurrentScore(this.hero.getPosition().x);
+		float score = this.score.getScore();
+		System.out.println(score);
 		this.paused = true;
 		this.lost = true;
 		
-		this.message = "You lost the game. Your scored : " + Math.round(this.score) + " points.";
+		this.message = "You lost the game. Your scored : " + Math.round(score) + " points.";
 	}
 	
 	@Override

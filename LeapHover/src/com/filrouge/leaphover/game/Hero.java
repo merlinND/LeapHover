@@ -43,7 +43,7 @@ public class Hero {
 	protected HoverRayCastCallback callbackBack;
 	protected float currentTargetHeight = REACTOR_HEIGHT;
 	protected boolean isCloseToGround;
-	protected float currentHandHeight = 1f;
+	protected float currentHandHeight = 0.4f;
 	
 	// ----- Graphical effects
 	protected ThrusterEffect thrusterFront, thrusterBack;
