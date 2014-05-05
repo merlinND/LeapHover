@@ -1,4 +1,4 @@
-package com.filrouge.leaphover.game;
+package score;
 
 /**
  *	Basic Class which handles score

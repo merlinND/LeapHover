@@ -2,6 +2,8 @@ package com.filrouge.leaphover.game;
 
 import java.util.concurrent.Callable;
 
+import score.Score;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
