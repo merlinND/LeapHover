@@ -25,6 +25,14 @@ public class SimpleDrawer {
 	    renderer.line(begin, end);
 	    renderer.end();
 	}
+	
+	public static void drawCircle(Camera camera, float x, float y, float radius, Color color) {
+		renderer.setProjectionMatrix(camera.combined);
+		renderer.begin(ShapeType.Filled);
+	    renderer.setColor(color);
+	    renderer.circle(x, y, radius);
+	    renderer.end();
+	}
 
 	/*
 	 * GETTERS & SETTERS

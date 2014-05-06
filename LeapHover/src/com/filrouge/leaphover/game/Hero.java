@@ -122,6 +122,15 @@ public class Hero {
 		Vector2 back = new Vector2(startOfRay).add((float) (- this.boardWidth / 2*Math.cos(angle)), 
 												   (float) (- this.boardWidth / 2*Math.sin(angle)));
 		
+		/**
+		 * Ray to detect bonus items
+		 * TODO : Add RayCastCallBack
+		 */
+		Vector2 startRayBonus = new Vector2(startOfRay).add((float) (this.boardWidth * Math.cos(angle)), 
+													(float) (this.boardWidth * Math.sin(angle)));
+		Vector2 endRayBonus = new Vector2(startRayBonus).add((float) (this.boardWidth / 5 * Math.cos(angle)), 
+															(float) (this.boardWidth / 5 * Math.sin(angle)));
+		
 		Vector2 normal = new Vector2((float)Math.sin(angle),
 								   - (float)Math.cos(angle));
 		normal.scl(currentTargetHeight);
@@ -130,6 +139,8 @@ public class Hero {
 		Vector2 endOfRayBack = back.cpy().add(normal);
 		
 		// Debug display
+		SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), startRayBonus, endRayBonus);
+		//SimpleDrawer.drawCircle(LeapHover.getInstance().getCamera(), this.body.getWorldCenter().x, this.body.getWorldCenter().y, 0.5f, Color.RED);
 		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), front, endOfRayFront);
 		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), back, endOfRayBack);
 		

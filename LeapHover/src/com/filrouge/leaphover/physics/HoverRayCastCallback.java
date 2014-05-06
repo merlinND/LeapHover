@@ -35,6 +35,7 @@ public class HoverRayCastCallback implements RayCastCallback {
 		this.distance = null;
 		this.position = position;
 	}
+	
 	public float getDistance() {
 		return this.distance;
 	}
