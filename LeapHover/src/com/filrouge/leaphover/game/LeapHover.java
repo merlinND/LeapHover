@@ -16,6 +16,7 @@ import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
+import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -43,6 +44,11 @@ public class LeapHover implements ApplicationListener {
 	
 	/** A reference to the main character (for testing purpose) */
 	protected Hero hero;
+	
+	/** Properties for the drawing */
+	protected boolean isDrawing = false;
+	protected Vector2 drawBegin;
+	protected Vector2 drawEnd;
 	
 	/** Angle of the hero to the horizontal (in radian) */
 	public static final float INITIAL_HERO_INCLINATION = 0f;
@@ -189,6 +195,8 @@ public class LeapHover implements ApplicationListener {
 		if(!this.paused) {
 			hero.step();
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
+			
+			drawingStep();
 
 			// Apply hero inclination smoothly
 			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
@@ -200,6 +208,12 @@ public class LeapHover implements ApplicationListener {
 				velocity = velocity.nor().scl(Hero.MAX_LINEAR_VELOCITY);
 				hero.getBody().setLinearVelocity(velocity);
 			}
+		}
+	}
+	
+	public void drawingStep() {
+		if (this.isDrawing) {
+			SimpleDrawer.drawLine(this.getCamera(), this.drawBegin, this.drawEnd);
 		}
 	}
 	
@@ -261,5 +275,18 @@ public class LeapHover implements ApplicationListener {
 	}
 	public void setHeroInclination(float heroInclination) {
 		this.heroInclination = heroInclination;
+	}
+
+	/**
+	 * Sets the isDrawing parameter, used to know whether something should be drawn on the screen.
+	 * @param draw whether to draw
+	 */
+	public void setDrawing(boolean draw) {
+		this.isDrawing = draw;
+	}
+	
+	public void setLine(Vector2 begin, Vector2 end) {
+		this.drawBegin = begin;
+		this.drawEnd = end;
 	}
 }

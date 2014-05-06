@@ -4,6 +4,8 @@
 # IDE files
 **/*classpath
 **/*.iml
+**/out
+**/gen
 
 # Binaries
 **/bin*
@@ -12,7 +14,10 @@
 **/lib*
 **/*.dylib
 
-# Package Files #
+# Package Files
 **/*.jar
 **/*.war
 **/*.ear
+
+# TODO Avoid sprites copy?
+**/effects

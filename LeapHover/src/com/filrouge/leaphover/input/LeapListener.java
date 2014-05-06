@@ -17,10 +17,14 @@ public abstract class LeapListener extends Listener
 	
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
+	public static final double MIN_TIME_BETWEEN_POINTS_MS = 1000;
+	// TODO incremental drawing instead of drawing all points at once
+	public static final int    NB_POINTS_TO_DRAW = 2;
 
 	private List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	private boolean isDrawing;
-	private boolean handBefore=false;
+	private double timeLastPointMs;
+	private boolean handBefore = false;
 	
 	@Override
 	public void onFrame(Controller controller) {
@@ -35,7 +39,7 @@ public abstract class LeapListener extends Listener
 			 * Choosing appropriate hand
 			 */
 			if (frame.hands().count() == 2) {
-				// TODO : parameter which hand does which action
+				// TODO : parametrize which hand does which action
 				motionHand = frame.hands().leftmost();
 				drawingHand = frame.hands().rightmost();
 			}
@@ -50,8 +54,11 @@ public abstract class LeapListener extends Listener
 				motion(motionHand, frame.interactionBox().height());
 		    }
 
+			/*
+			 * Drawing
+			 */
 			if (drawingHand != null) {
-				draw(drawingHand);
+				drawAnalysis(drawingHand);
 			}
 		}
 		else {
@@ -62,7 +69,7 @@ public abstract class LeapListener extends Listener
 	/**
 	 * Creation of the list of drawingPoints the hand draws
 	 */
-	private void draw (Hand drawingHand) {
+	private void drawAnalysis (Hand drawingHand) {
 		PointableList pointables = drawingHand.pointables();
 		if (!pointables.isEmpty()) {
 			// Calculate the pointable front most Z coordinate
@@ -75,6 +82,8 @@ public abstract class LeapListener extends Listener
 				this.isDrawing = frontPos.getZ() <= 0;
 				if (this.isDrawing) { // New touch
 					System.out.println("New touch");
+					this.timeLastPointMs = System.currentTimeMillis();
+					// Resets the list
 					if (this.drawingPoints.size() > 0) {
 						this.drawingPoints = new ArrayList<Vector2>();
 					}
@@ -84,7 +93,15 @@ public abstract class LeapListener extends Listener
 			else {
 				this.isDrawing = frontPos.getZ() <= 0;
 
-				this.drawingPoints.add(new Vector2(frontPos.getX(), frontPos.getY()));
+				double currentTimeMs = System.currentTimeMillis();
+				if (currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
+					this.timeLastPointMs = currentTimeMs;
+					this.drawingPoints.add(new Vector2(frontPos.getX(), frontPos.getY()));
+					
+					if (drawingPoints.size() == NB_POINTS_TO_DRAW) {
+						this.handDraw(this.drawingPoints.get(0), this.drawingPoints.get(1));
+					}
+				}
 				
 				/*
 				 * If the drawing stopped (Z > 0)
@@ -128,10 +145,20 @@ public abstract class LeapListener extends Listener
 	
 	/**
 	 * Process variations of one hand's inclination
-	 * @param percent of rotation with repspect to the negative z-axis ("pitch")
+	 * @param percent of rotation with respect to the negative z-axis ("pitch")
 	 * @return
 	 */
 	public boolean handInclination(float percent) {
+		return false;
+	}
+
+	/**
+	 * Draws a line with the two points.
+	 *
+	 * @param begin The point from which to start the line
+	 * @param end   The point at which to stop the line
+	 */
+	public boolean handDraw(Vector2 begin, Vector2 end) {
 		return false;
 	}
 	

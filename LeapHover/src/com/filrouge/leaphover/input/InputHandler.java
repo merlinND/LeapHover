@@ -3,9 +3,15 @@ package com.filrouge.leaphover.input;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector2;
 import com.filrouge.leaphover.game.LeapHover;
+import com.filrouge.leaphover.util.SimpleDrawer;
+import com.leapmotion.leap.Vector;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.Display;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
@@ -17,6 +23,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	protected int numberOfLeapSamples = 0;
 	/** Used to accumulate received hand heights and then compute an average */
 	protected float percentSum = 0;
+	/** When set to true, allows the mouse to draw */
+	protected boolean mouseDraw = false;
 	
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
@@ -34,17 +42,22 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	}
 	
 	/**
-	 * @param amount Value in [0,1]
+	 * Makes the hero jump
 	 */
 	public void makeJump() {
 		game.getHero().triggerJump();
 	}
-	
+
+	/**
+	 * Makes a relative change to the hero's angle.
+	 * @param angle Relative change to make to the hero's inclination
+	*/
 	public void makeInclination(float angle) {
 		makeInclination(angle, true);
 	}
+	
 	/**
-	 * Make a relative change to the hero's angle.
+	 * Makes a relative change to the hero's angle.
 	 * @param angle Relative change to make to the hero's inclination
 	 * @param smooth The inclination is smoothed over the <tt>MAX_SAMPLE_NUMBER</tt> calls
 	 */
@@ -66,7 +79,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
 	}
 	
-	
+	public void draw(Vector2 begin, Vector2 end) {
+		this.game.setLine(begin, end);
+		this.game.setDrawing(true);
+	}
+
 	/* -----------------------
 	 * LEAP EVENTS
 	 */
@@ -102,6 +119,20 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 	
+	@Override
+	/**
+	 * Draws a line with the two points.
+	 * (coordinates from the leap are transformed to fit the game)
+	 * 
+	 * @param begin The point from which to start the line
+	 * @param end   The point at which to stop the line
+	 */
+	public boolean handDraw(Vector2 begin, Vector2 end) {
+		SimpleDrawer.drawLine(this.game.getCamera(), begin, end);
+		
+		return false;
+	}
+	
 	/* -----------------------
 	 * KEYBOARD EVENTS
 	 */
@@ -129,7 +160,17 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		case Input.Keys.DOWN:
 			game.getHero().startChargingJump();
 			break;
+
+		// Turns on the mouse drawing mode
+		case Input.Keys.SPACE:
+			this.mouseDraw = true;
 			
+			int screenX = Mouse.getX(),
+				screenY = Gdx.graphics.getHeight() - Mouse.getY(); // converts so that origin is on top
+			this.mouseMoved(screenX, screenY);
+
+			break;
+		
 		default:
 			break;
 		}
@@ -144,6 +185,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			game.getHero().triggerJump();
 			break;
 
+		// Turns off the mouse drawing mode
+		case Input.Keys.SPACE:
+			this.mouseDraw = false;
+			break;
+		
 		default:
 			break;
 		}
@@ -170,8 +216,28 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 
+	/**
+	 * Handles the mouse movement with explicit coordinates.
+	 *
+	 * @param screenX X with origin on the left
+	 * @param screenY Y with origin on top
+	 * @return
+	 */
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+		screenY = Gdx.graphics.getHeight() - screenY; // Puts the origin back on the bottom
+		if (this.mouseDraw) {
+			// If the mouse is on the screen
+			if (0 <= screenX && screenX <= Gdx.graphics.getWidth()
+					&& 0 <= screenY && screenY <= Gdx.graphics.getHeight()) {
+				
+				float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
+					  y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
+				
+				draw(new Vector2(x, y), new Vector2(x + 1, y + 1));
+			}
+		}
+		
 		return false;
 	}
 
