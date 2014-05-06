@@ -56,17 +56,17 @@ public class Score {
 	public void computeCurrentScore(float x) {
 		// If the user go back, he wins no point
 		if(x > this.lastX) {
-			this.score+=this.level * Math.pow(x-this.lastX, this.exponent);
+			this.score += this.level * Math.pow(x - this.lastX, this.exponent);
 		
 			this.lastX = x;
 		}
 	}
 	
 	public void reset() {
-		this.level=Score.RESET_LEVEL;
-		this.lastX=0;
-		this.score=0;
-		this.exponent=Score.START_EXPONENT;
+		this.level = Score.RESET_LEVEL;
+		this.lastX = 0;
+		this.score = 0;
+		this.exponent = Score.START_EXPONENT;
 	}
 	
 	/**
@@ -77,6 +77,6 @@ public class Score {
 	 * TODO : Apply pow on points ?
 	 */
 	public void performedTrick(float points) {
-		this.score+=points;
+		this.score += points;
 	}
 }
