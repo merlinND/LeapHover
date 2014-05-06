@@ -8,8 +8,8 @@ public class Trick {
 	
 	/** Hand down constants */
 	private static final float POINTS_FOR_HEAD_DOWN	= 10f;
-	private static final int MIN_ANGLE_HEAD_DOWN	= 160;
-	private static final int MAX_ANGLE_HEAD_DOWN	= 180;
+	private static final double MIN_ANGLE_HEAD_DOWN	= (2 * 3) * Math.PI;
+	private static final double MAX_ANGLE_HEAD_DOWN	= Math.PI;
 	
 	protected Score score;
 	

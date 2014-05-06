@@ -181,7 +181,7 @@ public class LeapHover implements ApplicationListener {
 			retryLevel();
 		}
 		
-		this.trick.newAngle((float) (this.heroInclination*180f/Math.PI));
+		this.trick.newAngle(this.heroInclination);
 		
 		// Level streaming: generate more level if needed
 		extendWorldIfNecessary();
