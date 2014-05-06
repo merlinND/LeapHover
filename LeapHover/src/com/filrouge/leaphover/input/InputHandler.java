@@ -28,6 +28,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
+	protected final float INIT_POS_X = 0.5f;
+	protected final float INIT_POS_Y = 0.375f;
 	protected final float ANGLE_CONTRIBUTION_RATIO = 0.2f;
 	
 	/* 
@@ -166,7 +168,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			this.mouseDraw = true;
 			
 			int screenX = Mouse.getX(),
-				screenY = Gdx.graphics.getHeight() - Mouse.getY(); // converts so that origin is on top
+				screenY = Gdx.graphics.getHeight() - Mouse.getY(); // converts y so that origin is on top
 			this.mouseMoved(screenX, screenY);
 
 			break;
@@ -219,8 +221,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	/**
 	 * Handles the mouse movement with explicit coordinates.
 	 *
-	 * @param screenX X with origin on the left
-	 * @param screenY Y with origin on top
+	 * @param screenX X in pixels with origin on the left
+	 * @param screenY Y in pixels with origin on top
 	 * @return
 	 */
 	@Override
@@ -233,6 +235,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 				
 				float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
 					  y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
+				
+				x += this.game.getCamera().position.x - INIT_POS_X;
+				y += this.game.getCamera().position.y - INIT_POS_Y;
 				
 				draw(new Vector2(x, y), new Vector2(x + 1, y + 1));
 			}
