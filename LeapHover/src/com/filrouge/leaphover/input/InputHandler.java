@@ -3,13 +3,13 @@ package com.filrouge.leaphover.input;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Mouse;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.filrouge.leaphover.game.LeapHover;
-import com.filrouge.leaphover.util.SimpleDrawer;
-import org.lwjgl.input.Mouse;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
