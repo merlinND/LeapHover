@@ -1,5 +1,7 @@
 package com.filrouge.leaphover.game;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.badlogic.gdx.ApplicationListener;
@@ -51,9 +53,8 @@ public class LeapHover implements ApplicationListener {
 	protected Hero hero;
 	
 	/** Properties for the drawing */
-	protected boolean isDrawing = false;
-	protected Vector2 drawBegin;
-	protected Vector2 drawEnd;
+	protected boolean displayDrawing = false;
+	protected List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	
 	/** Angle of the hero to the horizontal (in radian) */
 	public static final float INITIAL_HERO_INCLINATION = 0f;
@@ -234,8 +235,13 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void drawingStep() {
-		if (this.isDrawing) {
-			SimpleDrawer.drawLine(this.getCamera(), this.drawBegin, this.drawEnd);
+		if (this.displayDrawing) {
+			int max = this.drawingPoints.size();
+			if (max >= 2) {
+				for (int i = 0; i < max - 1; ++i) {
+					SimpleDrawer.drawLine(this.getCamera(), this.drawingPoints.get(i), this.drawingPoints.get(i + 1));
+				}
+			}
 		}
 	}
 	
@@ -329,15 +335,22 @@ public class LeapHover implements ApplicationListener {
 	}
 
 	/**
-	 * Sets the isDrawing parameter, used to know whether something should be drawn on the screen.
+	 * Sets the displayDrawing parameter, used to know whether something should be drawn on the screen.
 	 * @param draw whether to draw
 	 */
-	public void setDrawing(boolean draw) {
-		this.isDrawing = draw;
+	public void setDisplayDrawing (boolean draw) {
+		this.displayDrawing = draw;
 	}
-	
-	public void setLine(Vector2 begin, Vector2 end) {
-		this.drawBegin = begin;
-		this.drawEnd = end;
+
+	public void addDrawing() {
+		
+	}
+
+	/**
+	 * Adds a control point for the drawing.
+	 * @param point the point to add to the list of control points
+	 */
+	public void addPoint(Vector2 point) {
+		drawingPoints.add(point);
 	}
 }

@@ -9,9 +9,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.filrouge.leaphover.game.LeapHover;
 import com.filrouge.leaphover.util.SimpleDrawer;
-import com.leapmotion.leap.Vector;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
@@ -23,9 +21,11 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	protected int numberOfLeapSamples = 0;
 	/** Used to accumulate received hand heights and then compute an average */
 	protected float percentSum = 0;
+
 	/** When set to true, allows the mouse to draw */
 	protected boolean mouseDraw = false;
-	
+	protected double timeLastPointMs = 0;
+
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
 	protected final float INIT_POS_X = 0.5f;
@@ -81,9 +81,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
 	}
 	
-	public void draw(Vector2 begin, Vector2 end) {
-		this.game.setLine(begin, end);
-		this.game.setDrawing(true);
+	public void drawNewPoint(Vector2 point) {
+		this.game.addPoint(point);
+		this.game.setDisplayDrawing(true);
 	}
 
 	/* -----------------------
@@ -232,14 +232,19 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			// If the mouse is on the screen
 			if (0 <= screenX && screenX <= Gdx.graphics.getWidth()
 					&& 0 <= screenY && screenY <= Gdx.graphics.getHeight()) {
+
+				double currentTimeMs = System.currentTimeMillis();
+				if (this.timeLastPointMs == 0 || currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
+					this.timeLastPointMs = currentTimeMs;
+					
+					float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
+					y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
 				
-				float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
-					  y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
-				
-				x += this.game.getCamera().position.x - INIT_POS_X;
-				y += this.game.getCamera().position.y - INIT_POS_Y;
-				
-				draw(new Vector2(x, y), new Vector2(x + 1, y + 1));
+					x += this.game.getCamera().position.x - INIT_POS_X;
+					y += this.game.getCamera().position.y - INIT_POS_Y;
+					
+					drawNewPoint(new Vector2(x, y));
+				}
 			}
 		}
 		
