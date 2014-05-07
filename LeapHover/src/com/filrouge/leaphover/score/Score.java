@@ -79,4 +79,9 @@ public class Score {
 	public void performedTrick(float points) {
 		this.score += points;
 	}
+	
+	// ----- Getter(s) & Setter(s)
+	public int getLevel() {
+		return this.level;
+	}
 }
