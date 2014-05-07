@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.score.Score;
@@ -143,6 +144,11 @@ public class LeapHover implements ApplicationListener {
 		
 		// Ground
 		extendWorldIfNecessary();
+		
+		MessageDisplay.initiate();
+		MessageDisplay.addMessage("Début");
+		MessageDisplay.addMessage("Super");
+		MessageDisplay.addMessage("Hihi");
 	}
 	
 	protected void extendWorldIfNecessary() {
@@ -278,6 +284,9 @@ public class LeapHover implements ApplicationListener {
 		hero.render(spriteBatch);
 		if (message.length() > 0)
 			displayFont.draw(spriteBatch, message, 100, 100);
+		
+		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		
 		spriteBatch.end();
 
 		debugRenderer.render(world, camera.combined);
