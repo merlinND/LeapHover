@@ -1,10 +1,12 @@
 package com.filrouge.leaphover.score;
 
+import com.filrouge.leaphover.graphics.MessageDisplay;
+
 public class Trick {
 	/**
 	 * TODO : define good amount of points
 	 */
-	private static final float POINTS_FOR_LOOP		= 10f;
+	//private static final float POINTS_FOR_LOOP		= 10f;
 	
 	/** Head down constants */
 	private static final float POINTS_FOR_HEAD_DOWN	= 10f;
@@ -28,8 +30,8 @@ public class Trick {
 		if(floorAngle >= MIN_ANGLE_HEAD_DOWN && floorAngle <= MAX_ANGLE_HEAD_DOWN) {
 			// Head down, yeah! Feels great!
 			this.score.performedTrick(POINTS_FOR_HEAD_DOWN);
-			// TODO: replace by an onscreen visual cue
-			System.out.println("Head down detected (" + angle + " degrees), " + POINTS_FOR_HEAD_DOWN + " points added!");
+			
+			MessageDisplay.addMessage("Head down !");
 		}
 	}
 }

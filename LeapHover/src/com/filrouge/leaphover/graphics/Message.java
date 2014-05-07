@@ -1,5 +1,9 @@
 package com.filrouge.leaphover.graphics;
 
+/**
+ * @author remimartin
+ * TODO : Add position ?
+ */
 public class Message {
 	protected String text;
 	protected int duration;

@@ -8,10 +8,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
 import com.filrouge.leaphover.game.LeapHover;
-import com.filrouge.leaphover.util.SimpleDrawer;
-import com.leapmotion.leap.Vector;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*

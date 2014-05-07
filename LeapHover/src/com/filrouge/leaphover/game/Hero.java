@@ -126,11 +126,11 @@ public class Hero {
 		 * Ray to detect bonus items
 		 * TODO : Add RayCastCallBack
 		 */
-		Vector2 startRayBonus = new Vector2(startOfRay).add((float) (this.boardWidth * Math.cos(angle)), 
+		/*Vector2 startRayBonus = new Vector2(startOfRay).add((float) (this.boardWidth * Math.cos(angle)), 
 													(float) (this.boardWidth * Math.sin(angle)));
 		Vector2 endRayBonus = new Vector2(startRayBonus).add((float) (this.boardWidth / 5 * Math.cos(angle)), 
 															(float) (this.boardWidth / 5 * Math.sin(angle)));
-		
+		*/
 		Vector2 normal = new Vector2((float)Math.sin(angle),
 								   - (float)Math.cos(angle));
 		normal.scl(currentTargetHeight);

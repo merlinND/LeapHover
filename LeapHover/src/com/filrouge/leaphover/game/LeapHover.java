@@ -142,19 +142,18 @@ public class LeapHover implements ApplicationListener {
 		});
 		world.setContactListener(this.contactListener);
 		
+		// Messages display
+		MessageDisplay.initiate();
+		
 		// Ground
 		extendWorldIfNecessary();
-		
-		MessageDisplay.initiate();
-		MessageDisplay.addMessage("Début");
-		MessageDisplay.addMessage("Super");
-		MessageDisplay.addMessage("Hihi");
 	}
 	
 	protected void extendWorldIfNecessary() {
 		float distanceToEnd = currentWorldWidth - hero.getPosition().x;
 		if (Math.max(0, distanceToEnd) < WORLD_GENERATION_THRESHOLD) {
 			this.score.incLevel(this.hero.getPosition().x);
+			MessageDisplay.addMessage("Level "+this.score.getLevel());
 			
 			// TODO: leave space between current world end and next world begin
 			LevelGenerator.generate(world, currentWorldWidth, currentWorldWidth + WORLD_CHUNK_WIDTH, camera.viewportHeight);
