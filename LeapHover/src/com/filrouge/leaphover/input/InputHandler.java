@@ -130,7 +130,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 * @param end   The point at which to stop the line
 	 */
 	public boolean handDraw(Vector2 begin, Vector2 end) {
-		SimpleDrawer.drawLine(this.game.getCamera(), begin, end);
+		//SimpleDrawer.drawLine(this.game.getCamera(), begin, end);
 		
 		return false;
 	}

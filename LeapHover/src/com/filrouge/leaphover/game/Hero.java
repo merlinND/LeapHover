@@ -139,7 +139,7 @@ public class Hero {
 		Vector2 endOfRayBack = back.cpy().add(normal);
 		
 		// Debug display
-		SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), startRayBonus, endRayBonus);
+		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), startRayBonus, endRayBonus);
 		//SimpleDrawer.drawCircle(LeapHover.getInstance().getCamera(), this.body.getWorldCenter().x, this.body.getWorldCenter().y, 0.5f, Color.RED);
 		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), front, endOfRayFront);
 		//SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), back, endOfRayBack);
