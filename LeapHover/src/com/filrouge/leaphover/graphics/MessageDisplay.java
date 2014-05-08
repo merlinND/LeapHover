@@ -11,7 +11,7 @@ public class MessageDisplay {
 	private static final int DURATION = 200;
 	private static final int FIRST_Y = Gdx.graphics.getHeight();
 	private static final int OFFSET_STEP = 40;
-	private static final int X = 4*Gdx.graphics.getWidth()/5;
+	private static final int X = 3 * Gdx.graphics.getWidth() / 5;
 	
 	public static void initiate() {
 		messageQueue = new LinkedList<Message>();

@@ -78,8 +78,8 @@ public class LeapHover implements ApplicationListener {
 	protected Body obstacle;
 	protected BodyDef obstacleBodyDefinition;
 	public static final float ROCK_RADIUS = 0.1f;
-	protected static final double LOWER_BOUND_ODD = 0.111;
-	protected static final double UPPER_BOUND_ODD = 0.112;
+	protected static final double LOWER_BOUND_ODD = 0.1111;
+	protected static final double UPPER_BOUND_ODD = 0.1112;
 	public static final float TRUNK_HEIGHT = 0.1f;
 	protected static final float TRUNK_WIDTH = 0.05f;
 	

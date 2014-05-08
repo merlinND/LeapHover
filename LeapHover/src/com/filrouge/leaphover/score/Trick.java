@@ -10,14 +10,19 @@ public class Trick {
 	
 	/** Head down constants */
 	private static final float POINTS_FOR_HEAD_DOWN	= 10f;
-	private static final double MIN_ANGLE_HEAD_DOWN	= (2 * 3) * Math.PI;
-	private static final double MAX_ANGLE_HEAD_DOWN	= Math.PI;
 	
 	protected Score score;
+	
+	/** 
+	 * We don't want the user to win a lot of bonus points
+	 * for one head down
+	 */
+	protected boolean alreadyHeadDown;
 	
 	// Constructor(s)
 	public Trick(Score score) {
 		this.score = score;
+		this.alreadyHeadDown = false;
 	}
 	
 	// Method(s)
@@ -26,12 +31,18 @@ public class Trick {
 	 * TODO : Try to detect loop
 	 */
 	public void newAngle(float angle) {
-		int floorAngle = (int) Math.floor(angle);
-		if(floorAngle >= MIN_ANGLE_HEAD_DOWN && floorAngle <= MAX_ANGLE_HEAD_DOWN) {
+		angle = (int) (angle / Math.PI);
+		if(angle == -1 && !this.alreadyHeadDown) {
 			// Head down, yeah! Feels great!
 			this.score.performedTrick(POINTS_FOR_HEAD_DOWN);
 			
+			this.alreadyHeadDown = true;
+			
 			MessageDisplay.addMessage("Head down !");
+		} else {
+			if(angle == 0) { // initial position
+				this.alreadyHeadDown = false;
+			}
 		}
 	}
 }
