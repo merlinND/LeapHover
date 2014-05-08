@@ -20,6 +20,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
+import com.filrouge.leaphover.level.ObstacleType;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.physics.ObstacleRayCastCallback;
 import com.filrouge.leaphover.score.Score;
@@ -78,8 +79,10 @@ public class LeapHover implements ApplicationListener {
 	protected Body obstacle;
 	protected BodyDef obstacleBodyDefinition;
 	public static final float ROCK_RADIUS = 0.1f;
-	protected static final double LOWER_BOUND_ODD = 0.1111;
-	protected static final double UPPER_BOUND_ODD = 0.1112;
+	protected static final double LOWER_BOUND_OBSTACLE = 0.111;
+	protected static final double UPPER_BOUND_OBSTACLE = 0.112;
+	protected static final double LOWER_BOUND_BONUS = 0.211;
+	protected static final double UPPER_BOUND_BONUS = 0.212;
 	public static final float TRUNK_HEIGHT = 0.1f;
 	protected static final float TRUNK_WIDTH = 0.05f;
 	
@@ -93,7 +96,7 @@ public class LeapHover implements ApplicationListener {
 		
 		this.obstacleBodyDefinition = new BodyDef();
 		// Otherwise it doesn't fall
-		this.obstacleBodyDefinition.type = BodyDef.BodyType.DynamicBody; 
+		this.obstacleBodyDefinition.type = BodyDef.BodyType.StaticBody; 
 		this.obstacleBodyDefinition.angularDamping = 1f;
 	}
 	
@@ -211,7 +214,7 @@ public class LeapHover implements ApplicationListener {
 			retryLevel();
 		}
 		
-		this.generateObstacle();
+		this.randomGameElement();
 		
 		this.trick.newAngle(this.heroInclination);
 		
@@ -252,28 +255,41 @@ public class LeapHover implements ApplicationListener {
 	 * Randomly add obstacles
 	 * TODO : Add more obstacles at each level
 	 */
-	private void generateObstacle() {
+	private void randomGameElement() {
 		double random = Math.random();
-		if(random <= UPPER_BOUND_ODD && random >= LOWER_BOUND_ODD) {
-			obstacle = world.createBody(this.obstacleBodyDefinition);
-			
-			CircleShape cshape = new CircleShape();
-			cshape.setRadius(LeapHover.ROCK_RADIUS);
-			obstacle.createFixture(cshape, 0);
-			cshape.dispose();
-			
-			if(random <= (LOWER_BOUND_ODD + (UPPER_BOUND_ODD - LOWER_BOUND_ODD) / 2)) { // Tree
-				PolygonShape pshape = new PolygonShape();
-				pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
-				obstacle.createFixture(pshape, 0);
-				pshape.dispose();
-			} // Else, only rock
-			
-			ObstacleRayCastCallback obstacleRay = new ObstacleRayCastCallback();
-			
-			Vector2 heroPosition = this.hero.getPosition();
-			this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
+		if(random <= UPPER_BOUND_OBSTACLE && random >= LOWER_BOUND_OBSTACLE) {
+			generateObstacle(random);
+		} else if (random <= UPPER_BOUND_BONUS && random >= LOWER_BOUND_BONUS) {
+			generateBonus(random);
 		}
+	}
+	
+	private void generateBonus(double random) {
+		
+	}
+	
+	private void generateObstacle(double random) {
+		obstacle = world.createBody(this.obstacleBodyDefinition);
+		ObstacleType type = ObstacleType.ROCK;
+		
+		CircleShape cshape = new CircleShape();
+		cshape.setRadius(LeapHover.ROCK_RADIUS);
+		obstacle.createFixture(cshape, 0);
+		cshape.dispose();
+		
+		if(random <= (LOWER_BOUND_OBSTACLE + (UPPER_BOUND_OBSTACLE - LOWER_BOUND_OBSTACLE) / 2)) { // Tree
+			PolygonShape pshape = new PolygonShape();
+			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
+			obstacle.createFixture(pshape, 0);
+			pshape.dispose();
+			
+			type = ObstacleType.TREE;
+		} // Else, only rock
+		
+		ObstacleRayCastCallback obstacleRay = new ObstacleRayCastCallback(type);
+		
+		Vector2 heroPosition = this.hero.getPosition();
+		this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
 	}
 	
 	public void dropObstacle(Vector2 position) {
