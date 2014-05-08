@@ -16,13 +16,14 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
-import com.filrouge.leaphover.level.ObstacleType;
+import com.filrouge.leaphover.level.GameObjectType;
 import com.filrouge.leaphover.physics.CollisionDetector;
-import com.filrouge.leaphover.physics.ObstacleRayCastCallback;
+import com.filrouge.leaphover.physics.GameObjectRayCastCallback;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
 import com.filrouge.leaphover.util.SimpleDrawer;
@@ -76,7 +77,7 @@ public class LeapHover implements ApplicationListener {
 	protected ContactListener contactListener;
 	
 	/** Obstacles */
-	protected Body obstacle;
+	protected Body gameObject;
 	protected BodyDef obstacleBodyDefinition;
 	public static final float ROCK_RADIUS = 0.1f;
 	protected static final double LOWER_BOUND_OBSTACLE = 0.111;
@@ -85,6 +86,11 @@ public class LeapHover implements ApplicationListener {
 	protected static final double UPPER_BOUND_BONUS = 0.212;
 	public static final float TRUNK_HEIGHT = 0.1f;
 	protected static final float TRUNK_WIDTH = 0.05f;
+	
+	/** Bonus */
+	public static final float BONUS_RADIUS = 0.05f;
+	public static final float BONUS_POINTS = 20;
+	protected Fixture toBeDeleted = null;
 	
 	/* 
 	 * METHODS
@@ -188,6 +194,19 @@ public class LeapHover implements ApplicationListener {
 		setHeroInclination(INITIAL_HERO_INCLINATION);
 	}
 	
+	public void bonusPicked(Fixture fixture) {
+		this.toBeDeleted = fixture;
+		
+		this.score.performedTrick(BONUS_POINTS);
+	}
+	
+	private void deleteBonus() {
+		if (this.toBeDeleted != null) {
+			this.world.destroyBody(this.toBeDeleted.getBody());
+			this.toBeDeleted = null;
+		}
+	}
+	
 	public void loseGame() {
 		this.score.computeCurrentScore(this.hero.getPosition().x);
 		float score = this.score.getScore();
@@ -265,38 +284,49 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	private void generateBonus(double random) {
-		
-	}
-	
-	private void generateObstacle(double random) {
-		obstacle = world.createBody(this.obstacleBodyDefinition);
-		ObstacleType type = ObstacleType.ROCK;
+		gameObject = world.createBody(this.obstacleBodyDefinition);
+		GameObjectType type = GameObjectType.BONUS;
 		
 		CircleShape cshape = new CircleShape();
-		cshape.setRadius(LeapHover.ROCK_RADIUS);
-		obstacle.createFixture(cshape, 0);
+		cshape.setRadius(LeapHover.BONUS_RADIUS);
+		gameObject.createFixture(cshape, 0);
 		cshape.dispose();
 		
-		if(random <= (LOWER_BOUND_OBSTACLE + (UPPER_BOUND_OBSTACLE - LOWER_BOUND_OBSTACLE) / 2)) { // Tree
-			PolygonShape pshape = new PolygonShape();
-			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
-			obstacle.createFixture(pshape, 0);
-			pshape.dispose();
-			
-			type = ObstacleType.TREE;
-		} // Else, only rock
-		
-		ObstacleRayCastCallback obstacleRay = new ObstacleRayCastCallback(type);
+		GameObjectRayCastCallback obstacleRay = new GameObjectRayCastCallback(type);
 		
 		Vector2 heroPosition = this.hero.getPosition();
 		this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
 	}
 	
-	public void dropObstacle(Vector2 position) {
-		if(this.obstacle != null) {
-			obstacle.setTransform(new Vector2(position.x, 
+	private void generateObstacle(double random) {
+		gameObject = world.createBody(this.obstacleBodyDefinition);
+		GameObjectType type = GameObjectType.ROCK;
+		
+		CircleShape cshape = new CircleShape();
+		cshape.setRadius(LeapHover.ROCK_RADIUS);
+		gameObject.createFixture(cshape, 0);
+		cshape.dispose();
+		
+		if(random <= (LOWER_BOUND_OBSTACLE + (UPPER_BOUND_OBSTACLE - LOWER_BOUND_OBSTACLE) / 2)) { // Tree
+			PolygonShape pshape = new PolygonShape();
+			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
+			gameObject.createFixture(pshape, 0);
+			pshape.dispose();
+			
+			type = GameObjectType.TREE;
+		} // Else, only rock
+		
+		GameObjectRayCastCallback obstacleRay = new GameObjectRayCastCallback(type);
+		
+		Vector2 heroPosition = this.hero.getPosition();
+		this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
+	}
+	
+	public void dropGameObject(Vector2 position) {
+		if(this.gameObject != null) {
+			gameObject.setTransform(new Vector2(position.x, 
 					position.y), 0);
-			this.obstacle = null;
+			this.gameObject = null;
 		}
 	}
 	
@@ -309,6 +339,8 @@ public class LeapHover implements ApplicationListener {
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		spriteBatch.begin();
+		
+		this.deleteBonus();
 
 		// ----- Update game logic
 		step(Gdx.graphics.getDeltaTime());

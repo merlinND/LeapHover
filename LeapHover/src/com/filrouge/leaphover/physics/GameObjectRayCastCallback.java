@@ -4,12 +4,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.filrouge.leaphover.game.LeapHover;
-import com.filrouge.leaphover.level.ObstacleType;
+import com.filrouge.leaphover.level.GameObjectType;
 
-public class ObstacleRayCastCallback implements RayCastCallback {
-	protected ObstacleType type;
+public class GameObjectRayCastCallback implements RayCastCallback {
+	protected GameObjectType type;
 
-	public ObstacleRayCastCallback(ObstacleType type) {
+	public GameObjectRayCastCallback(GameObjectType type) {
 		this.type = type;
 	}
 	/**
@@ -22,11 +22,13 @@ public class ObstacleRayCastCallback implements RayCastCallback {
 		
 		Vector2 position = point.cpy();
 		float offset = LeapHover.ROCK_RADIUS;
-		if(type == ObstacleType.TREE) {
+		if(type == GameObjectType.TREE) {
 			offset += LeapHover.TRUNK_HEIGHT;
+		} else if(type == GameObjectType.BONUS) {
+			offset = LeapHover.BONUS_RADIUS * 2;
 		}
 		position.add(0, offset);
-		LeapHover.getInstance().dropObstacle(position);
+		LeapHover.getInstance().dropGameObject(position);
 		
 		return 0;
 	}

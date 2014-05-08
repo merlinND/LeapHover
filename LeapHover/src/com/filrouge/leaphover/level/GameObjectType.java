@@ -1,6 +1,7 @@
 package com.filrouge.leaphover.level;
 
-public enum ObstacleType {
+public enum GameObjectType {
+	BONUS,
 	ROCK, 
 	TREE;
 }

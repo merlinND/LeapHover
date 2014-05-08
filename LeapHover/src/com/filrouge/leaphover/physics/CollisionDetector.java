@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.filrouge.leaphover.game.LeapHover;
 
 public class CollisionDetector implements ContactListener {
 	protected Fixture target;
@@ -43,8 +44,18 @@ public class CollisionDetector implements ContactListener {
 	}
 
 	@Override
-	public void preSolve(Contact arg0, Manifold arg1) {
-		// TODO Auto-generated method stub
-		
+	public void preSolve(Contact contact, Manifold arg1) {
+		System.out.println("test");
+		Fixture a = contact.getFixtureA();
+        Fixture b = contact.getFixtureB();
+        
+        if((a.getShape().getRadius() == LeapHover.BONUS_RADIUS ||
+        		b.getShape().getRadius() == LeapHover.BONUS_RADIUS) &&
+        		(LeapHover.getInstance().getHero().getBody().getFixtureList().contains(a, false) || 
+        				LeapHover.getInstance().getHero().getBody().getFixtureList().contains(b, false))) {
+        	Fixture bonus = (a.getShape().getRadius() == LeapHover.BONUS_RADIUS) ? a : b;
+        	
+        	LeapHover.getInstance().bonusPicked(bonus);
+        }
 	}
 }
