@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.physics.CollisionDetector;
+import com.filrouge.leaphover.physics.ObstacleRayCastCallback;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
 import com.filrouge.leaphover.util.SimpleDrawer;
@@ -74,10 +75,13 @@ public class LeapHover implements ApplicationListener {
 	protected ContactListener contactListener;
 	
 	/** Obstacles */
+	protected Body obstacle;
 	protected BodyDef obstacleBodyDefinition;
-	protected static final float ROCK_RADIUS = 0.1f;
+	public static final float ROCK_RADIUS = 0.1f;
 	protected static final double LOWER_BOUND_ODD = 0.111;
 	protected static final double UPPER_BOUND_ODD = 0.112;
+	public static final float TRUNK_HEIGHT = 0.1f;
+	protected static final float TRUNK_WIDTH = 0.05f;
 	
 	/* 
 	 * METHODS
@@ -248,10 +252,10 @@ public class LeapHover implements ApplicationListener {
 	 * Randomly add obstacles
 	 * TODO : Add more obstacles at each level
 	 */
-	public void generateObstacle() {
+	private void generateObstacle() {
 		double random = Math.random();
 		if(random <= UPPER_BOUND_ODD && random >= LOWER_BOUND_ODD) {
-			Body obstacle = world.createBody(this.obstacleBodyDefinition);
+			obstacle = world.createBody(this.obstacleBodyDefinition);
 			
 			CircleShape cshape = new CircleShape();
 			cshape.setRadius(LeapHover.ROCK_RADIUS);
@@ -260,13 +264,23 @@ public class LeapHover implements ApplicationListener {
 			
 			if(random <= (LOWER_BOUND_ODD + (UPPER_BOUND_ODD - LOWER_BOUND_ODD) / 2)) { // Tree
 				PolygonShape pshape = new PolygonShape();
-				pshape.setAsBox(0.05f, 0.1f, new Vector2(0, -ROCK_RADIUS), 0f);
+				pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
 				obstacle.createFixture(pshape, 0);
 				pshape.dispose();
 			} // Else, only rock
 			
-			obstacle.setTransform(new Vector2(this.hero.getPosition().x + 1f, 
-					  this.hero.getPosition().y + 1f), 0);
+			ObstacleRayCastCallback obstacleRay = new ObstacleRayCastCallback();
+			
+			Vector2 heroPosition = this.hero.getPosition();
+			this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
+		}
+	}
+	
+	public void dropObstacle(Vector2 position) {
+		if(this.obstacle != null) {
+			obstacle.setTransform(new Vector2(position.x, 
+					position.y), 0);
+			this.obstacle = null;
 		}
 	}
 	
