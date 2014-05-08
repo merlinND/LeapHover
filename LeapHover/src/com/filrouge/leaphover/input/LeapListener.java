@@ -91,13 +91,23 @@ public abstract class LeapListener extends Listener
 			}
 			
 			else {
+				static double lastMeasure;
+				static float averageX;
+				static float averageY;
+				
 				this.isDrawing = frontPos.getZ() <= 0;
-
+				
 				double currentTimeMs = System.currentTimeMillis();
+				
+				double oldSampleDuration = lastMeasure - this.timeLastPointMs;
+				double currentSampleDuration = currentTimeMs - this.timeLastPointMs;
+				double currentMeasureDuration = currentTimeMs - lastMeasure;
+				lastMeasure = currentTimeMs;
+				averageX = ( oldSampleDuration*averageX + frontPos.getX()*currentMeasureDuration )/currentSampleDuration;
+				averageY = ( oldSampleDuration*averageY + frontPos.getY()*currentMeasureDuration )/currentSampleDuration;
 				if (currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
 					this.timeLastPointMs = currentTimeMs;
-					this.drawingPoints.add(new Vector2(frontPos.getX(), frontPos.getY()));
-					
+					this.drawingPoints.add(new Vector2(averageX,averageY));
 					if (drawingPoints.size() == NB_POINTS_TO_DRAW) {
 						this.handDraw(this.drawingPoints.get(0), this.drawingPoints.get(1));
 					}
