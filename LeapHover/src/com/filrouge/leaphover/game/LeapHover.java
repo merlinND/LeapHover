@@ -198,6 +198,7 @@ public class LeapHover implements ApplicationListener {
 		this.toBeDeleted = fixture;
 		
 		this.score.performedTrick(BONUS_POINTS);
+		MessageDisplay.addMessage("Bonus picked");
 	}
 	
 	private void deleteBonus() {

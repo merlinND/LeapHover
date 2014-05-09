@@ -18,7 +18,9 @@ public class MessageDisplay {
 	}
 	
 	public static void displayMessages(BitmapFont displayFont, SpriteBatch spriteBatch) {
+		spriteBatch.end();
 		for(int i = 0; i < messageQueue.size(); ++i) {
+			spriteBatch.begin();
 			displayFont.draw(spriteBatch,
 					messageQueue.get(i).getText(),
 					X,
@@ -27,7 +29,9 @@ public class MessageDisplay {
 				messageQueue.remove(i);
 				--i;
 			}
+			spriteBatch.end();
 		}
+		spriteBatch.begin();
 	}
 	
 	public static void addMessage(Message message) {

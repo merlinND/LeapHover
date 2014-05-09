@@ -22,7 +22,9 @@ public class CollisionDetector implements ContactListener {
 	public void beginContact(Contact contact) {
 		Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
-        if (a.equals(target) || b.equals(target)) {
+        if (a.equals(target) || b.equals(target) && 
+        		(a.getShape().getRadius() == LeapHover.BONUS_RADIUS ||
+        		b.getShape().getRadius() == LeapHover.BONUS_RADIUS)) {
         	try {
 				callback.call();
 			} catch (Exception e) {
@@ -45,7 +47,6 @@ public class CollisionDetector implements ContactListener {
 
 	@Override
 	public void preSolve(Contact contact, Manifold arg1) {
-		System.out.println("test");
 		Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
         
