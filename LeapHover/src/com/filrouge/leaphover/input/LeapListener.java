@@ -17,7 +17,7 @@ public abstract class LeapListener extends Listener
 	
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
-	public static final double MIN_TIME_BETWEEN_POINTS_MS = 1000;
+	public static final double MIN_TIME_BETWEEN_POINTS_MS = 100;
 	// TODO incremental drawing instead of drawing all points at once
 	public static final int    NB_POINTS_TO_DRAW = 2;
 

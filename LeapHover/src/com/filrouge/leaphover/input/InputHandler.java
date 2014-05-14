@@ -190,6 +190,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		// Turns off the mouse drawing mode
 		case Input.Keys.SPACE:
 			this.mouseDraw = false;
+			game.finishDrawing();
 			break;
 		
 		default:
