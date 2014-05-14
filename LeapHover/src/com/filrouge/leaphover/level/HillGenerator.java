@@ -90,7 +90,7 @@ public class HillGenerator {
 	/**
 	 * Return a random number of control points.
 	 * The number of control points is comprised between MIN_CONTROL_POINTS and MAX_CONTROL_POINTS
-	 * @see #getHillControlPoints(int n, float xMin, float xMax, float yMin, float yMax)
+	 * @see #getHillControlPoints(int n, float smoothness, float xMin, float xMax, float yMin, float yMax)
 	 * @return
 	 */
 	protected static ArrayList<Vector2> getHillControlPoints(float smoothness, float xMin, float xMax, float yMin, float yMax) {

@@ -360,6 +360,19 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer.render(world, camera.combined);
 	}
 
+	/**
+	 * Adds a control point for the drawing.
+	 * @param point the point to add to the list of control points
+	 */
+	public void addDrawPoint (Vector2 point) {
+		drawingPoints.add(point);
+	}
+
+	public void validateDrawing() {
+		drawingPoints.clear();
+		setDisplayDrawing(false);
+	}
+
 	@Override
 	public void resize(int width, int height) {
 	}
@@ -404,15 +417,4 @@ public class LeapHover implements ApplicationListener {
 		this.displayDrawing = draw;
 	}
 
-	public void addDrawing() {
-		
-	}
-
-	/**
-	 * Adds a control point for the drawing.
-	 * @param point the point to add to the list of control points
-	 */
-	public void addPoint(Vector2 point) {
-		drawingPoints.add(point);
-	}
 }

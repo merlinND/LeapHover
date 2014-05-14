@@ -1,6 +1,8 @@
 package com.filrouge.leaphover.input;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.filrouge.leaphover.game.LeapHover;
 import com.leapmotion.leap.*;
 
 import java.util.ArrayList;
@@ -18,10 +20,16 @@ public abstract class LeapListener extends Listener
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
 	public static final double MIN_TIME_BETWEEN_POINTS_MS = 1000;
-	// TODO incremental drawing instead of drawing all points at once
-	public static final int    NB_POINTS_TO_DRAW = 2;
 
-	private List<Vector2> drawingPoints = new ArrayList<Vector2>();
+	public static boolean isRightHanded = true;
+	
+	public static final float MIN_Y = 105;
+	public static final float DETECTION_HEIGHT = 200;
+	public static final float MIDDLE = 0;
+	public static final float DETECTION_WIDTH = 200;
+	
+	public static final float WALL_POSITION_Z = 0; // Where the touch is triggered
+
 	private boolean isDrawing;
 	private double timeLastPointMs;
 	private boolean handBefore = false;
@@ -31,17 +39,22 @@ public abstract class LeapListener extends Listener
 		Frame frame = controller.frame();
 
 		if (!frame.hands().isEmpty()) {
-			this.handBefore=true;
-			Hand motionHand,
+			this.handBefore = true;
+			Hand motionHand  = null,
 				 drawingHand = null;
 
 			/*
 			 * Choosing appropriate hand
 			 */
 			if (frame.hands().count() == 2) {
-				// TODO : parametrize which hand does which action
-				motionHand = frame.hands().leftmost();
-				drawingHand = frame.hands().rightmost();
+				if (isRightHanded) {
+					motionHand = frame.hands().leftmost();
+					drawingHand = frame.hands().rightmost();
+				}
+				else {
+					motionHand = frame.hands().rightmost();
+					drawingHand = frame.hands().leftmost();
+				}
 			}
 			else { // Only one hand: movement
 				motionHand = frame.hands().get(0);
@@ -60,10 +73,29 @@ public abstract class LeapListener extends Listener
 			if (drawingHand != null) {
 				drawAnalysis(drawingHand);
 			}
+			else if (this.isDrawing) {
+				this.isDrawing = false;
+				System.out.println("Stopped touching\n");
+				// Notifies observers
+				endHandDrawing();
+			}
 		}
-		else {
+		else { // If there is no hand
+			if (this.isDrawing) {
+				this.isDrawing = false;
+				System.out.println("Stopped touching\n");
+				// Notifies observers
+				endHandDrawing();
+			}
+
 			noHand();
 		}
+	}
+
+	private boolean isInBoundaries(Vector frontPos) {
+		return (frontPos.getY() > MIN_Y && frontPos.getY() < MIN_Y + DETECTION_HEIGHT) &&
+				(isRightHanded ? (frontPos.getX() > MIDDLE && frontPos.getX() < MIDDLE + DETECTION_WIDTH)
+				: (frontPos.getX() < MIDDLE && frontPos.getX() > MIDDLE - DETECTION_WIDTH));
 	}
 
 	/**
@@ -76,17 +108,21 @@ public abstract class LeapListener extends Listener
 			Vector frontPos = pointables.frontmost().tipPosition();
 			
 			/*
-			 * If there is a new touch (Z <= 0)
+			 * If there is a new touch (Z <= WALL_POSITION_Z)
 			 */
 			if (!this.isDrawing) {
-				this.isDrawing = frontPos.getZ() <= 0;
+				this.isDrawing = frontPos.getZ() <= WALL_POSITION_Z;
 				if (this.isDrawing) { // New touch
+
+					if (!isInBoundaries(frontPos)) {
+						this.isDrawing = false;
+						return;
+					}
+
 					System.out.println("New touch");
 					this.timeLastPointMs = System.currentTimeMillis();
-					// Resets the list
-					if (this.drawingPoints.size() > 0) {
-						this.drawingPoints = new ArrayList<Vector2>();
-					}
+					// Notifies the observers
+					newHandDrawing();
 				}
 			}
 			
@@ -95,32 +131,26 @@ public abstract class LeapListener extends Listener
 				float averageX = 0;
 				float averageY = 0;
 				
-				this.isDrawing = frontPos.getZ() <= 0;
+				/*
+				 * If the drawing stopped (Z > WALL_POSITION_Z)
+				 */
+				if (frontPos.getZ() > WALL_POSITION_Z || !isInBoundaries(frontPos)) {
+					System.out.println("Stopped touching\n");
+					this.isDrawing = false;
+					// Notifies observers
+					endHandDrawing();
+				}
 				
 				double currentTimeMs = System.currentTimeMillis();
 				
 				double oldSampleDuration = lastMeasure - this.timeLastPointMs;
 				double currentSampleDuration = currentTimeMs - this.timeLastPointMs;
 				double currentMeasureDuration = currentTimeMs - lastMeasure;
-				lastMeasure = currentTimeMs;
 				averageX = (float) (( oldSampleDuration*averageX + frontPos.getX()*currentMeasureDuration )/currentSampleDuration);
 				averageY = (float) (( oldSampleDuration*averageY + frontPos.getY()*currentMeasureDuration )/currentSampleDuration);
 				if (currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
 					this.timeLastPointMs = currentTimeMs;
-					this.drawingPoints.add(new Vector2(averageX,averageY));
-					if (drawingPoints.size() == NB_POINTS_TO_DRAW) {
-						this.handDraw(this.drawingPoints.get(0), this.drawingPoints.get(1));
-					}
-				}
-				
-				/*
-				 * If the drawing stopped (Z > 0)
-				 */
-				if (!this.isDrawing) {
-					System.out.println("Stopped touching");
-					System.out.println("Point list: [");
-					System.out.println(drawingPoints);
-					System.out.println("]");
+					this.handDraw(new Vector2(frontPos.getX(), frontPos.getY()));
 				}
 			}
 		}
@@ -163,12 +193,29 @@ public abstract class LeapListener extends Listener
 	}
 
 	/**
-	 * Draws a line with the two points.
+	 * Adds a new point to be drawn.
+	 * (coordinates from the leap are transformed to fit the game)
 	 *
-	 * @param begin The point from which to start the line
-	 * @param end   The point at which to stop the line
+	 * @param point The point to add to the other control points
+	 * @return 
 	 */
-	public boolean handDraw(Vector2 begin, Vector2 end) {
+	public boolean handDraw(Vector2 point) {
+		return false;
+	}
+
+	/**
+	 * Notifies that a new drawing is beginning.
+	 * @return 
+	 */
+	public boolean newHandDrawing() {
+		return false;
+	}
+
+	/**
+	 * Notifies that a drawing has stopped.
+	 * @return
+	 */
+	public boolean endHandDrawing() {
 		return false;
 	}
 	

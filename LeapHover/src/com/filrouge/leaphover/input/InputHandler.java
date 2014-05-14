@@ -3,6 +3,7 @@ package com.filrouge.leaphover.input;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.leapmotion.leap.Pointable;
 import org.lwjgl.input.Mouse;
 
 import com.badlogic.gdx.Gdx;
@@ -80,11 +81,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		// Only make a relative contribution (influence) to the hero's angle
 		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
 	}
-	
-	public void drawNewPoint(Vector2 point) {
-		this.game.addPoint(point);
-		this.game.setDisplayDrawing(true);
-	}
 
 	/* -----------------------
 	 * LEAP EVENTS
@@ -123,15 +119,42 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	
 	@Override
 	/**
-	 * Draws a line with the two points.
+	 * Adds a new point to be drawn.
 	 * (coordinates from the leap are transformed to fit the game)
 	 * 
-	 * @param begin The point from which to start the line
-	 * @param end   The point at which to stop the line
+	 * @param point The point to add to the other control points
 	 */
-	public boolean handDraw(Vector2 begin, Vector2 end) {
-		//SimpleDrawer.drawLine(this.game.getCamera(), begin, end);
+	public boolean handDraw(Vector2 frontMost) {
+		/*
+		 * Converting coordinates from leap coordinates to game coordinates
+		 */
+		if (!isRightHanded) {
+			frontMost.x = MIDDLE - frontMost.x;
+		}
+
+		System.out.println("leapX: "+frontMost.x+" leapY: "+frontMost.y);
+
+		float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
+			  y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
+
+		x += game.getCamera().position.x - INIT_POS_X;
+		y += game.getCamera().position.y - 2 * INIT_POS_Y;
+
+		System.out.println("x: "+x+" y: "+y);
+
+		this.game.addDrawPoint(new Vector2(x, y));
 		
+		return false;
+	}
+	
+	public boolean newHandDrawing() {
+		this.game.setDisplayDrawing(true);
+		return false;
+	}
+	
+	public boolean endHandDrawing() {
+		this.game.validateDrawing();
+
 		return false;
 	}
 	
@@ -237,13 +260,17 @@ public class InputHandler extends LeapListener implements InputProcessor {
 				if (this.timeLastPointMs == 0 || currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
 					this.timeLastPointMs = currentTimeMs;
 					
+					/*
+					 * Converting the coordinates from pixels to game coordinates
+					 */
 					float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
 					y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
 				
 					x += this.game.getCamera().position.x - INIT_POS_X;
 					y += this.game.getCamera().position.y - INIT_POS_Y;
-					
-					drawNewPoint(new Vector2(x, y));
+
+					this.game.setDisplayDrawing(true);
+					this.game.addDrawPoint(new Vector2(x, y));
 				}
 			}
 		}
