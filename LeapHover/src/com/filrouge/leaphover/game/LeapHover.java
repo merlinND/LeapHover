@@ -41,8 +41,12 @@ public class LeapHover implements ApplicationListener {
 	protected final float WORLD_CHUNK_WIDTH = 5 * WORLD_GENERATION_THRESHOLD;
 	protected float currentWorldWidth = 0f;
 	
-	protected FollowCamera camera;
+	protected FollowCamera camera;	
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
+	
+	public static final float ADAPTATIVE_ZOOM_POW = 2;
+	public static final float ADAPTATIVE_ZOOM_CONST = 1;
+	
 	protected Box2DDebugRenderer debugRenderer;
 	protected SpriteBatch spriteBatch;
 	protected BitmapFont displayFont;
@@ -252,6 +256,7 @@ public class LeapHover implements ApplicationListener {
 		
 		if(!this.paused) {
 			hero.step();
+			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTATIVE_ZOOM_POW)+ADAPTATIVE_ZOOM_CONST;
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 			
 			drawingStep();
