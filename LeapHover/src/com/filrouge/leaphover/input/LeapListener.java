@@ -28,7 +28,7 @@ public abstract class LeapListener extends Listener
 	public static final float MIDDLE = 0;
 	public static final float DETECTION_WIDTH = 200;
 	
-	public static final float WALL_POSITION_Z = 0; // Where the touch is triggered
+	public static final float WALL_POSITION_Z = 100; // Where the touch is triggered
 
 	private boolean isDrawing;
 	private double timeLastPointMs;

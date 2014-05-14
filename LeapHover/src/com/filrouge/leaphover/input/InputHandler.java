@@ -174,7 +174,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			break;
 		// Retry lever after losing
 		case Input.Keys.ENTER:
-			game.retryLevel();
+			this.game.retryLevel();
 			break;
 		// Charge jump
 		/*

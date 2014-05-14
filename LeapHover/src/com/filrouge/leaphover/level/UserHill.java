@@ -128,12 +128,12 @@ public class UserHill {
 	public void Draw()
 	//Draw curve only if it isn't finished, draw the "virtual curve"
 	{
-		if(!hillFinished && nbOfVertices>1)
+		if(!hillFinished && nbOfVertices > 1)
 		{
 			Vector2 previous = vertices[0];
-			for(int i = 1; i < nbOfVertices-1; ++i) {
-				SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(),previous,vertices[i],Color.BLUE);
-				previous = vertices[i];
+			for(Vector2 vertex : vertices) {
+				SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(),previous,vertex,Color.WHITE);
+				previous = vertex;
 			}
 		}
 	}
@@ -142,10 +142,11 @@ public class UserHill {
 	{
 		return hillFinished;
 	}
-	
-	public void Destroy()
-	{
+
+	public void Destroy() {
 		nbOfVertices = 0;
-		LeapHover.getInstance().getWorld().destroyBody(physicHill);
+		if (this.physicHill != null) {
+			LeapHover.getInstance().getWorld().destroyBody(physicHill);
+		}
 	}
 }

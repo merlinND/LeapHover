@@ -192,21 +192,21 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void retryLevel() {
+		for (UserHill hill : userHills) {
+			hill.Destroy();
+		}
+
 		this.score.reset();
 		this.paused = false;
 		this.lost = false;
 		this.message = "";
-		
-		for(int i=0;i<userHills.size();i++)
-		{
-			userHills.get(i).Destroy();
-		}
+
 		// Move to the very beginning of the level
 		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
 		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
 		setHeroInclination(INITIAL_HERO_INCLINATION);
 	}
-	
+
 	public void bonusPicked(Fixture fixture) {
 		this.toBeDeleted = fixture;
 		
@@ -381,6 +381,7 @@ public class LeapHover implements ApplicationListener {
 		//	Create a new hill if there is no current one
 		{
 			UserHill newUserHill = new UserHill();
+			newUserHill.AddControlPoint(point, world);
 			userHills.add(newUserHill);
 		}
 		userHills.get(userHills.size()-1).AddControlPoint(point, world);
