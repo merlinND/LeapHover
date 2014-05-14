@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -22,6 +23,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.GameObjectType;
+import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.physics.GameObjectRayCastCallback;
 import com.filrouge.leaphover.score.Score;
@@ -39,8 +41,12 @@ public class LeapHover implements ApplicationListener {
 	protected final float WORLD_CHUNK_WIDTH = 5 * WORLD_GENERATION_THRESHOLD;
 	protected float currentWorldWidth = 0f;
 	
-	protected FollowCamera camera;
+	protected FollowCamera camera;	
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
+	
+	public static final float ADAPTATIVE_ZOOM_POW = 2;
+	public static final float ADAPTATIVE_ZOOM_CONST = 1;
+	
 	protected Box2DDebugRenderer debugRenderer;
 	protected SpriteBatch spriteBatch;
 	protected BitmapFont displayFont;
@@ -58,6 +64,9 @@ public class LeapHover implements ApplicationListener {
 	/** Properties for the drawing */
 	protected boolean displayDrawing = false;
 	protected List<Vector2> drawingPoints = new ArrayList<Vector2>();
+	
+	public static final int NB_OF_USER_HILLS = 250;
+	protected List<UserHill> userHills = new ArrayList<UserHill>();
 	
 	/** Angle of the hero to the horizontal (in radian) */
 	public static final float INITIAL_HERO_INCLINATION = 0f;
@@ -188,6 +197,10 @@ public class LeapHover implements ApplicationListener {
 		this.lost = false;
 		this.message = "";
 		
+		for(int i=0;i<userHills.size();i++)
+		{
+			userHills.get(i).Destroy();
+		}
 		// Move to the very beginning of the level
 		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
 		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
@@ -243,6 +256,7 @@ public class LeapHover implements ApplicationListener {
 		
 		if(!this.paused) {
 			hero.step();
+			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTATIVE_ZOOM_POW)+ADAPTATIVE_ZOOM_CONST;
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 			
 			drawingStep();
@@ -261,13 +275,9 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void drawingStep() {
-		if (this.displayDrawing) {
-			int max = this.drawingPoints.size();
-			if (max >= 2) {
-				for (int i = 0; i < max - 1; ++i) {
-					SimpleDrawer.drawLine(this.getCamera(), this.drawingPoints.get(i), this.drawingPoints.get(i + 1));
-				}
-			}
+		for(int i=0; i<userHills.size();i++)
+		{
+			userHills.get(i).Draw();
 		}
 	}
 	
@@ -360,15 +370,36 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer.render(world, camera.combined);
 	}
 
+
+
 	/**
 	 * Adds a control point for the drawing.
 	 * @param point the point to add to the list of control points
 	 */
-	public void addDrawPoint (Vector2 point) {
-		drawingPoints.add(point);
+	public void addDrawPoint(Vector2 point) {
+		if(userHills.size()==0 || userHills.get(userHills.size()-1).IsFinished())
+		//	Create a new hill if there is no current one
+		{
+			UserHill newUserHill = new UserHill();
+			userHills.add(newUserHill);
+		}
+		userHills.get(userHills.size()-1).AddControlPoint(point, world);
+		//drawingPoints.add(point);
+	}
+
+	/**
+	 * Manages the end of the drawing
+	 */
+	public void finishDrawing() {
+		System.out.println("Finish drawing");
+		if(userHills.size()>0 && !userHills.get(userHills.size()-1).IsFinished())
+		{
+			userHills.get(userHills.size()-1).FinishDrawing();
+		}
 	}
 
 	public void validateDrawing() {
+		finishDrawing();
 		drawingPoints.clear();
 		setDisplayDrawing(false);
 	}
@@ -416,5 +447,4 @@ public class LeapHover implements ApplicationListener {
 	public void setDisplayDrawing (boolean draw) {
 		this.displayDrawing = draw;
 	}
-
 }

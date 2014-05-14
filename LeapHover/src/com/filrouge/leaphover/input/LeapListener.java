@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Our intermediate interface to process Leap Motion events
- * @author R��mi Martin
+ * @author R��mi Martin et Gustave Monod
  */
 public abstract class LeapListener extends Listener
 {
@@ -19,7 +19,7 @@ public abstract class LeapListener extends Listener
 	
 	public static final double MIN_HAND_INCLINATION = 0.5;
 	public static final double MAX_HAND_INCLINATION = 3.2;
-	public static final double MIN_TIME_BETWEEN_POINTS_MS = 1000;
+	public static final double MIN_TIME_BETWEEN_POINTS_MS = 100;
 
 	public static boolean isRightHanded = true;
 	
