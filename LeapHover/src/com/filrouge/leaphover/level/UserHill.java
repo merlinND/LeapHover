@@ -50,7 +50,6 @@ public class UserHill {
 	}
 	
 	public boolean addControlPoint(Vector2 newControlPoint, World world) {
-		System.out.println("New control point " + newControlPoint.x);
 		controlPoints.add(newControlPoint);
 		int size = controlPoints.size();
 		// If there is enough control points, create or regenerate a new BSCurve,
@@ -71,7 +70,6 @@ public class UserHill {
 				distance += controlPoints.get(i - 1).dst(controlPoints.get(i));
 			
 			nbOfVertices = Math.abs(Math.round(distance * NB_OF_VERTICES_PER_UNIT));
-			System.out.println("Number of vertices " + nbOfVertices);
 			vertices = bscurveHill.getSamples(nbOfVertices);
 			
 		}

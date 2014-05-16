@@ -80,6 +80,16 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		// Only make a relative contribution (influence) to the hero's angle
 		game.setHeroInclination(game.getHeroInclination() + targetAngle * ANGLE_CONTRIBUTION_RATIO);
 	}
+	
+	public boolean newHandDrawing() {
+		this.game.setDisplayDrawing(true);
+		return false;
+	}
+	
+	public boolean endHandDrawing() {
+		this.game.validateDrawing();
+		return false;
+	}
 
 	/* -----------------------
 	 * LEAP EVENTS
@@ -146,17 +156,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 	
-	public boolean newHandDrawing() {
-		this.game.setDisplayDrawing(true);
-		return false;
-	}
-	
-	public boolean endHandDrawing() {
-		this.game.validateDrawing();
-
-		return false;
-	}
-	
 	/* -----------------------
 	 * KEYBOARD EVENTS
 	 */
@@ -187,12 +186,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 		// Turns on the mouse drawing mode
 		case Input.Keys.SPACE:
-			this.mouseDraw = true;
-			
-			int screenX = Mouse.getX(),
-				screenY = Gdx.graphics.getHeight() - Mouse.getY(); // converts y so that origin is on top
-			this.mouseMoved(screenX, screenY);
-
+			triggerTouchDown();
 			break;
 		
 		default:
@@ -211,8 +205,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 		// Turns off the mouse drawing mode
 		case Input.Keys.SPACE:
-			this.mouseDraw = false;
-			game.finishDrawing();
+			triggerTouchUp();
 			break;
 		
 		default:
@@ -226,21 +219,38 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		return false;
 	}
 
+	/* -----------------------
+	 * MOUSE & TOUCH EVENTS
+	 */
+	public boolean triggerTouchDown() {
+		// For some reason we need to revert the y axis
+		return touchDown(Mouse.getX(), Gdx.graphics.getHeight() - Mouse.getY(), 0, 0);
+	}
+	public boolean triggerTouchUp() {
+		// For some reason we need to revert the y axis
+		return touchUp(Mouse.getX(), Gdx.graphics.getHeight() - Mouse.getY(), 0, 0);
+	}
+	
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		return false;
+		this.mouseDraw = true;
+		this.mouseMoved(screenX, screenY);
+		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		return false;
+		this.mouseDraw = false;
+		game.finishDrawing();
+		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return false;
+		mouseMoved(screenX, screenY);
+		return true;
 	}
-
+	
 	/**
 	 * Handles the mouse movement with explicit coordinates.
 	 *
@@ -250,19 +260,17 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	 */
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		screenY = Gdx.graphics.getHeight() - screenY; // Puts the origin back on the bottom
+		// Put the origin back at the bottom of the screen
+		screenY = Gdx.graphics.getHeight() - screenY;
 		if (this.mouseDraw) {
-			// If the mouse is on the screen
+			// If the mouse is on screen
 			if (0 <= screenX && screenX <= Gdx.graphics.getWidth()
 					&& 0 <= screenY && screenY <= Gdx.graphics.getHeight()) {
-
 				double currentTimeMs = System.currentTimeMillis();
 				if (this.timeLastPointMs == 0 || currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
 					this.timeLastPointMs = currentTimeMs;
 					
-					/*
-					 * Converting the coordinates from pixels to game coordinates
-					 */
+					// Convert the coordinates from pixels to game coordinates
 					float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
 					y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
 				
@@ -282,8 +290,4 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	public boolean scrolled(int amount) {
 		return false;
 	}
-
-	/*
-	 * GETTERS & SETTERS
-	 */
 }

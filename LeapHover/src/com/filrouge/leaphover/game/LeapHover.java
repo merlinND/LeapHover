@@ -301,10 +301,10 @@ public class LeapHover implements ApplicationListener {
 	 * Manages the end of the drawing
 	 */
 	public void finishDrawing() {
-		System.out.println("Finish drawing");
-		if(userHills.size()>0 && !userHills.get(userHills.size()-1).isFinished())
-		{
-			userHills.get(userHills.size()-1).finishDrawing();
+		if(userHills.size() > 0) {
+			UserHill latestHill = userHills.get(userHills.size() - 1);
+			if (!latestHill.isFinished())
+				latestHill.finishDrawing();
 		}
 	}
 
