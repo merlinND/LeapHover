@@ -11,16 +11,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
-import com.filrouge.leaphover.level.GameObjectType;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
@@ -37,6 +32,8 @@ public class LeapHover implements ApplicationListener {
 	
 	protected final float WORLD_GENERATION_THRESHOLD = 1f;
 	protected final float WORLD_CHUNK_WIDTH = 5 * WORLD_GENERATION_THRESHOLD;
+	/** We consider the game lost if the player gets under this height */
+	protected final float WORLD_MINIMUM_Y = -0.5f;
 	protected float currentWorldWidth = 0f;
 	
 	protected FollowCamera camera;	
@@ -63,7 +60,6 @@ public class LeapHover implements ApplicationListener {
 	protected boolean displayDrawing = false;
 	protected List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	
-	public static final int NB_OF_USER_HILLS = 250;
 	protected List<UserHill> userHills = new ArrayList<UserHill>();
 	
 	/** Angle of the hero to the horizontal (in radian) */
@@ -74,29 +70,15 @@ public class LeapHover implements ApplicationListener {
 	protected boolean paused = false;
 	protected boolean lost = false;
 	
-	/** Score when the user loose the game */
+	/** Score when the user looses the game */
 	protected Score score;
 	protected Trick trick;
+	public static final float BONUS_POINTS = 20;
 	
-	/**
-	 * Contact handler (detect collisions of the character with the environment)
-	 */
+	/** Contact handler (detect collisions of the character with the environment) */
 	protected ContactListener contactListener;
 	
-	/** Obstacles */
-	protected Body gameObject;
-	protected BodyDef obstacleBodyDefinition;
-	public static final float ROCK_RADIUS = 0.1f;
-	protected static final double LOWER_BOUND_OBSTACLE = 0.111;
-	protected static final double UPPER_BOUND_OBSTACLE = 0.112;
-	protected static final double LOWER_BOUND_BONUS = 0.211;
-	protected static final double UPPER_BOUND_BONUS = 0.212;
-	public static final float TRUNK_HEIGHT = 0.1f;
-	protected static final float TRUNK_WIDTH = 0.05f;
-	
-	/** Bonus */
-	public static final float BONUS_RADIUS = 0.05f;
-	public static final float BONUS_POINTS = 20;
+	/** Environment */
 	protected Fixture toBeDeleted = null;
 	
 	/* 
@@ -106,11 +88,6 @@ public class LeapHover implements ApplicationListener {
 	private LeapHover() {
 		this.score = new Score();
 		this.trick = new Trick(this.score);
-		
-		this.obstacleBodyDefinition = new BodyDef();
-		// Otherwise it doesn't fall
-		this.obstacleBodyDefinition.type = BodyDef.BodyType.StaticBody; 
-		this.obstacleBodyDefinition.angularDamping = 1f;
 	}
 	
 	private static class SingletonHolder {
@@ -118,7 +95,7 @@ public class LeapHover implements ApplicationListener {
 		private final static LeapHover instance = new LeapHover();
 	}
 	/** 
-	 * Récupérer l'unique instance de ce LeapHover (pattern Singleton)
+	 * Get the unique instance of LeapHover (Singleton pattern)
 	 * Source : http://thecodersbreakfast.net/index.php?post/2008/02/25/26-de-la-bonne-implementation-du-singleton-en-java
 	 */
 	public static LeapHover getInstance() {
@@ -174,7 +151,7 @@ public class LeapHover implements ApplicationListener {
 		float distanceToEnd = currentWorldWidth - hero.getPosition().x;
 		if (Math.max(0, distanceToEnd) < WORLD_GENERATION_THRESHOLD) {
 			this.score.incLevel(this.hero.getPosition().x);
-			MessageDisplay.addMessage("Level "+this.score.getLevel());
+			MessageDisplay.addMessage("Level " + this.score.getLevel());
 			
 			// TODO: leave space between current world end and next world begin
 			LevelGenerator.generate(world, currentWorldWidth, currentWorldWidth + WORLD_CHUNK_WIDTH, camera.viewportHeight);
@@ -199,6 +176,8 @@ public class LeapHover implements ApplicationListener {
 		this.lost = false;
 		this.message = "";
 
+		// TODO: make sure all user lines (drawings) and random environment is cleared
+		
 		// Move to the very beginning of the level
 		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
 		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
@@ -239,13 +218,11 @@ public class LeapHover implements ApplicationListener {
 	 * @param delta
 	 */
 	public void step(float delta) {
-		// If hero gets off screen, reset its position
-		// TODO: remove for real gameplay
-		if (hero.getPosition().y < -0.5f) {
-			retryLevel();
-		}
+		// If hero falls off screen, reset its position
+		if (hero.getPosition().y < WORLD_MINIMUM_Y)
+			loseGame();
 		
-		this.randomGameElement();
+		this.addRandomGameElement();
 		
 		this.trick.newAngle(this.heroInclination);
 		
@@ -273,69 +250,22 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void drawingStep() {
-		for(int i=0; i<userHills.size();i++)
-		{
+		for(int i = 0; i < userHills.size(); i++) {
 			userHills.get(i).Draw();
 		}
 	}
 	
 	/**
-	 * Randomly add obstacles
-	 * TODO : Add more obstacles at each level
+	 * Randomly add obstacles & bonuses
+	 * TODO: Add more obstacles at each level (make dependant on "difficulty")
 	 */
-	private void randomGameElement() {
-		double random = Math.random();
-		if(random <= UPPER_BOUND_OBSTACLE && random >= LOWER_BOUND_OBSTACLE) {
-			generateObstacle(random);
-		} else if (random <= UPPER_BOUND_BONUS && random >= LOWER_BOUND_BONUS) {
-			generateBonus(random);
-		}
-	}
-	
-	private void generateBonus(double random) {
-		gameObject = world.createBody(this.obstacleBodyDefinition);
-		GameObjectType type = GameObjectType.BONUS;
-		
-		CircleShape cshape = new CircleShape();
-		cshape.setRadius(LeapHover.BONUS_RADIUS);
-		gameObject.createFixture(cshape, 0);
-		cshape.dispose();
-		
-		GameObjectRayCastCallback obstacleRay = new GameObjectRayCastCallback(type);
-		
-		Vector2 heroPosition = this.hero.getPosition();
-		this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
-	}
-	
-	private void generateObstacle(double random) {
-		gameObject = world.createBody(this.obstacleBodyDefinition);
-		GameObjectType type = GameObjectType.ROCK;
-		
-		CircleShape cshape = new CircleShape();
-		cshape.setRadius(LeapHover.ROCK_RADIUS);
-		gameObject.createFixture(cshape, 0);
-		cshape.dispose();
-		
-		if(random <= (LOWER_BOUND_OBSTACLE + (UPPER_BOUND_OBSTACLE - LOWER_BOUND_OBSTACLE) / 2)) { // Tree
-			PolygonShape pshape = new PolygonShape();
-			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
-			gameObject.createFixture(pshape, 0);
-			pshape.dispose();
-			
-			type = GameObjectType.TREE;
-		} // Else, only rock
-		
-		GameObjectRayCastCallback obstacleRay = new GameObjectRayCastCallback(type);
-		
-		Vector2 heroPosition = this.hero.getPosition();
-		this.world.rayCast(obstacleRay, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
-	}
-	
-	public void dropGameObject(Vector2 position) {
-		if(this.gameObject != null) {
-			gameObject.setTransform(new Vector2(position.x, 
-					position.y), 0);
-			this.gameObject = null;
+	private void addRandomGameElement() {
+		float random = (float)Math.random();
+		GameObjectRayCastCallback callback = LevelGenerator.generateGameObject(random);
+		if (callback != null) {
+			Vector2 heroPosition = hero.getPosition();
+			// TODO: randomize obstacle position
+			world.rayCast(callback, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
 		}
 	}
 	

@@ -4,7 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.filrouge.leaphover.game.Hero;
-import com.filrouge.leaphover.game.LeapHover;
+import com.filrouge.leaphover.level.LevelGenerator;
 
 public class HoverRayCastCallback implements RayCastCallback {
 	private Hero hoverboard;
@@ -22,8 +22,9 @@ public class HoverRayCastCallback implements RayCastCallback {
 	@Override
 	public float reportRayFixture(Fixture fixture, Vector2 point, Vector2 normal,
 			float fraction) {
-		// if not bonus
-		if(fixture.getShape().getRadius() != LeapHover.BONUS_RADIUS) {
+		// If not bonus
+		// TODO: make cleaner
+		if(fixture.getShape().getRadius() != LevelGenerator.BONUS_RADIUS) {
 		
 			float dist = position.dst(point);
 			

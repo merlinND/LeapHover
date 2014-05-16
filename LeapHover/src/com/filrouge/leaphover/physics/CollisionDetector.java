@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.filrouge.leaphover.game.LeapHover;
+import com.filrouge.leaphover.level.LevelGenerator;
 
 public class CollisionDetector implements ContactListener {
 	protected Fixture target;
@@ -23,8 +24,8 @@ public class CollisionDetector implements ContactListener {
 		Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
         if (a.equals(target) || b.equals(target) && 
-        		(a.getShape().getRadius() == LeapHover.BONUS_RADIUS ||
-        		b.getShape().getRadius() == LeapHover.BONUS_RADIUS)) {
+        		(a.getShape().getRadius() == LevelGenerator.BONUS_RADIUS ||
+        		b.getShape().getRadius() == LevelGenerator.BONUS_RADIUS)) {
         	try {
 				callback.call();
 			} catch (Exception e) {
@@ -50,11 +51,12 @@ public class CollisionDetector implements ContactListener {
 		Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
         
-        if((a.getShape().getRadius() == LeapHover.BONUS_RADIUS ||
-        		b.getShape().getRadius() == LeapHover.BONUS_RADIUS) &&
+        // TODO: make bonus detection cleaner (avoid hit & death)
+        if((a.getShape().getRadius() == LevelGenerator.BONUS_RADIUS ||
+        		b.getShape().getRadius() == LevelGenerator.BONUS_RADIUS) &&
         		(LeapHover.getInstance().getHero().getBody().getFixtureList().contains(a, false) || 
         				LeapHover.getInstance().getHero().getBody().getFixtureList().contains(b, false))) {
-        	Fixture bonus = (a.getShape().getRadius() == LeapHover.BONUS_RADIUS) ? a : b;
+        	Fixture bonus = (a.getShape().getRadius() == LevelGenerator.BONUS_RADIUS) ? a : b;
         	
         	LeapHover.getInstance().bonusPicked(bonus);
         }
