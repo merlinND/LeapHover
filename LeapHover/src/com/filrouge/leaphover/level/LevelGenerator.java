@@ -13,11 +13,14 @@ public class LevelGenerator {
 	/*
 	 * PROPERTIES
 	 */
-	/**
-	 * The default width of a hill
-	 * TODO: randomize and make it depend on the difficulty
-	 */
-	public static final float BLOCK_WIDTH = 2f;
+	/** Parameters for the width of hills blocks */
+	protected static final float MIN_BLOCK_WIDTH = 0.3f;
+	protected static final float BASIC_BLOCK_WIDTH = 2f;
+	protected static final float BLOCK_WIDTH_RANDOM_OFFSET_RANGE = 1f;
+	/** Parameters for the gaps between blocks */
+	protected static final float MAX_GAP_WIDTH = 1f;
+	protected static final float BASIC_GAP_WIDTH = 0.3f;
+	protected static final float GAP_RANDOM_OFFSET_RANGE = 0.1f;
 	/** TODO: make configurable */
 	protected static final float DIFFICULTY_FACTOR = 0.1f;
 
@@ -33,23 +36,24 @@ public class LevelGenerator {
 	 * @param height
 	 */
 	public static void generate(World world, float from, float to, float height) {
-		float width = to - from;
-		
-		// Generate independant hills, each one with width BLOCK_WIDTH
+		// Generate independant hills, each one with a random width
 		// so as to fill the demanded width
 		// TODO: do not to go above the specified `to`
 		BodyDef bodyDefinition = new BodyDef();
 		bodyDefinition.type = BodyDef.BodyType.StaticBody;
-		int n = (int)Math.ceil(width / BLOCK_WIDTH);
-		for (int i = 0; i < n; i++) {
-			float beginX = from + i * BLOCK_WIDTH;
+		float currentX = from;
+		while (currentX < to) {
 			float minY = (height / 10f);
+			float width = getRandomWidthAtPosition(currentX);
+			// Caution: the gap width can be negative for small `currentX`
+			float gapWidth = getRandomGapAtPosition(currentX);
+			float smoothness = getSmoothnessAtPosition(currentX);
 			
-			float smoothness = getSmoothnessAtPosition(beginX);
-			//System.out.println("This block starting at " + beginX + " has smoothness " + smoothness);
-			bodyDefinition.position.set(beginX, 0);
+			System.out.println("This block starting at " + currentX + " has gap width " + gapWidth);
+			bodyDefinition.position.set(currentX + gapWidth, 0);
 			Body groundBody = world.createBody(bodyDefinition);
-			HillGenerator.makeHill(groundBody, BLOCK_WIDTH, height, new Vector2(0f, minY), smoothness);
+			HillGenerator.makeHill(groundBody, width, height, new Vector2(0f, minY), smoothness);
+			currentX += width + gapWidth;
 		}
 	}
 	
@@ -61,6 +65,32 @@ public class LevelGenerator {
 	protected static float getSmoothnessAtPosition(float x) {
 		// TODO: adjust smoothness progression curve
 		return 1 + (1 / (float)(Math.log(x * DIFFICULTY_FACTOR + 1.001f)));
+	}
+	
+	/**
+	 * The more advanced the position, the narrower the blocks.
+	 * @param x
+	 * @return
+	 */
+	protected static float getRandomWidthAtPosition(float x) {
+		// TODO: adjust width progression curve
+		float width = BASIC_BLOCK_WIDTH * (3f - (float)Math.log10(4f * x + 1.001f));
+		float offset = BLOCK_WIDTH_RANDOM_OFFSET_RANGE * (float)(Math.random() - 0.5f);
+		return Math.max(MIN_BLOCK_WIDTH, width + offset);
+	}
+
+	/**
+	 * The more advanced the position, the longer the gaps.
+	 * For small x, the gaps can be negative (thus we obtain hills overlap).
+	 * @param x
+	 * @return
+	 */
+	protected static float getRandomGapAtPosition(float x) {
+		// TODO: adjust width progression curve
+		float width = BASIC_GAP_WIDTH * (float)(Math.log10(4f * x + 10f) - 2f);
+		float offset = GAP_RANDOM_OFFSET_RANGE * (float)(Math.random() - 0.5f);
+		
+		return Math.min(MAX_GAP_WIDTH, width + offset);
 	}
 
 	/*

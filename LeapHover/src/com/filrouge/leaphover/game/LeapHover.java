@@ -222,7 +222,7 @@ public class LeapHover implements ApplicationListener {
 	public void loseGame() {
 		this.score.computeCurrentScore(this.hero.getPosition().x);
 		float score = this.score.getScore();
-		System.out.println(score);
+		System.out.println("Game ended. Score: " + score);
 		this.paused = true;
 		this.lost = true;
 		
