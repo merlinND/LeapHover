@@ -30,7 +30,7 @@ public class LevelGenerator {
 	protected static final float DIFFICULTY_FACTOR = 0.1f;
 
 	/** Obstacles */
-	protected static final float OBSTACLE_PROBABILITY_PER_BLOCK = 0.3f;
+	protected static final float OBSTACLE_PROBABILITY_PER_BLOCK = 0.5f;
 	protected static final float TREE_PROBABILITY = 0.6f;
 	public static final float ROCK_RADIUS = 0.1f;
 	public static final float TRUNK_HEIGHT = 0.1f;
@@ -133,7 +133,6 @@ public class LevelGenerator {
 			float r = (float)Math.random();
 			Vector2 top = new Vector2(Util.progress(from, to, r), 1f),
 					bottom = top.cpy().sub(0, 1.5f);
-			System.out.println("Game object will be dropped from " + top);
 			LeapHover.getInstance().getWorld().rayCast(callback, top, bottom);
 		}
 	}

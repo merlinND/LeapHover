@@ -152,7 +152,6 @@ public class Hero {
 		body.getWorld().rayCast(callbackBack, back, endOfRayBack);
 		
 		// Update the thruster's particle effect position
-		// TODO: compute the angle relative to each thruster's position (≠ central angle)
 		// TODO: map ParticleEmitter.velocity to currentTargetHeight
 		Vector2 frontPosition = front.cpy().add(normal.cpy().scl(0.1f));
 		thrusterFront.setPosition(frontPosition.x, frontPosition.y);
@@ -203,6 +202,7 @@ public class Hero {
 			Vector2 end = position.cpy().add(force.cpy().scl(10f));
 			SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), position, end, Color.RED);
 		}
+		
 	}
 	
 	/**

@@ -35,7 +35,7 @@ public class LeapHover implements ApplicationListener {
 	protected final float WORLD_MINIMUM_Y = -0.5f;
 	protected float currentWorldWidth = 0f;
 	
-	protected FollowCamera camera;	
+	protected FollowCamera camera;
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
 	
 	public static final float ADAPTATIVE_ZOOM_POW = 2;
@@ -166,7 +166,7 @@ public class LeapHover implements ApplicationListener {
 	
 	public void retryLevel() {
 		for (UserHill hill : userHills) {
-			hill.Destroy();
+			hill.destroy();
 		}
 
 		this.score.reset();
@@ -227,7 +227,7 @@ public class LeapHover implements ApplicationListener {
 		
 		if(!this.paused) {
 			hero.step();
-			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTATIVE_ZOOM_POW)+ADAPTATIVE_ZOOM_CONST;
+			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTATIVE_ZOOM_POW) + ADAPTATIVE_ZOOM_CONST;
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 			
 			drawingStep();
@@ -247,7 +247,7 @@ public class LeapHover implements ApplicationListener {
 	
 	public void drawingStep() {
 		for(int i = 0; i < userHills.size(); i++) {
-			userHills.get(i).Draw();
+			userHills.get(i).draw();
 		}
 	}
 	
@@ -287,14 +287,14 @@ public class LeapHover implements ApplicationListener {
 	 * @param point the point to add to the list of control points
 	 */
 	public void addDrawPoint(Vector2 point) {
-		if(userHills.size()==0 || userHills.get(userHills.size()-1).IsFinished())
+		if(userHills.size()==0 || userHills.get(userHills.size()-1).isFinished())
 		//	Create a new hill if there is no current one
 		{
 			UserHill newUserHill = new UserHill();
-			newUserHill.AddControlPoint(point, world);
+			newUserHill.addControlPoint(point, world);
 			userHills.add(newUserHill);
 		}
-		userHills.get(userHills.size()-1).AddControlPoint(point, world);
+		userHills.get(userHills.size()-1).addControlPoint(point, world);
 		//drawingPoints.add(point);
 	}
 
@@ -303,9 +303,9 @@ public class LeapHover implements ApplicationListener {
 	 */
 	public void finishDrawing() {
 		System.out.println("Finish drawing");
-		if(userHills.size()>0 && !userHills.get(userHills.size()-1).IsFinished())
+		if(userHills.size()>0 && !userHills.get(userHills.size()-1).isFinished())
 		{
-			userHills.get(userHills.size()-1).FinishDrawing();
+			userHills.get(userHills.size()-1).finishDrawing();
 		}
 	}
 

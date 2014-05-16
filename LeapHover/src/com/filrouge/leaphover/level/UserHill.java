@@ -22,7 +22,7 @@ import com.filrouge.leaphover.util.SimpleDrawer;
  * When the hill is finished, (use FinishDrawing method), a physical hill is created
  * and inserted into the world. The rendering is then taken care by the main renderer.
  * 
- * IMPORTANT NOTICE : the box2d engine can fail if the NB_OF_VERTICES_PER_HZTL_UNIT
+ * @warning IMPORTANT NOTICE : the box2d engine can fail if the NB_OF_VERTICES_PER_HZTL_UNIT
  * is too important
  * 
  * @author Damien Gallet
@@ -42,25 +42,22 @@ public class UserHill {
 	public static final int NB_OF_VERTICES_PER_HZTL_UNIT = 100;
 	public static final float HILL_THICKNESS = 0.01f;
 	
-	public UserHill()
-	{
+	public UserHill() {
 		hillFinished = false;
 		controlPoints = new ArrayList<Vector2>();
 		vertices = null;
 		shape = new EdgeShape();
 	}
 	
-	public boolean AddControlPoint(Vector2 newControlPoint, World world)
-	{
+	public boolean addControlPoint(Vector2 newControlPoint, World world) {
 		System.out.println("New control point " + newControlPoint.x);
 		controlPoints.add(newControlPoint);
 		int size = controlPoints.size();
-		if(size >3)
 		// If there is enough control points, create or regenerate a new BSCurve,
 		// and get its vertices
-		{
-			if(size==4)
-			{
+		if(size >3) {
+		
+			if(size == 4) {
 				BodyDef bodyDefinition = new BodyDef();
 				bodyDefinition.type = BodyDef.BodyType.StaticBody;
 				bodyDefinition.position.set(controlPoints.get(0));
@@ -76,9 +73,11 @@ public class UserHill {
 		return false;
 	}
 	
-	public void FinishDrawing()
-	//When the drawing is finished, virtual curve becomes physic curve
-	{
+	/**
+	 * When the drawing is finished, the virtual curve becomes a physical curve
+	 * => it is instanciated in the world.
+	 */
+	public void finishDrawing() {
 		hillFinished = true;
 		if(nbOfVertices>1) {
 			BodyDef physicHillDef = new BodyDef();
@@ -123,11 +122,11 @@ public class UserHill {
 		}
 	}
 	
-	public void Draw()
-	//Draw curve only if it isn't finished, draw the "virtual curve"
-	{
-		if(!hillFinished && nbOfVertices > 1)
-		{
+	/**
+	 * Render the curve (only if it isn't finished)
+	 */
+	public void draw() {
+		if(!hillFinished && nbOfVertices > 1) {
 			Vector2 previous = vertices[0];
 			for(Vector2 vertex : vertices) {
 				SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(),previous,vertex,Color.WHITE);
@@ -136,12 +135,11 @@ public class UserHill {
 		}
 	}
 	
-	public boolean IsFinished()
-	{
+	public boolean isFinished() {
 		return hillFinished;
 	}
 
-	public void Destroy() {
+	public void destroy() {
 		nbOfVertices = 0;
 		if (this.physicHill != null) {
 			LeapHover.getInstance().getWorld().destroyBody(physicHill);
