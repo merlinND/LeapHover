@@ -9,7 +9,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector2;
+import com.filrouge.leaphover.game.FollowCamera;
 import com.filrouge.leaphover.game.LeapHover;
+import com.filrouge.leaphover.util.Util;
 
 public class InputHandler extends LeapListener implements InputProcessor {
 	/*
@@ -24,7 +26,9 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 	/** When set to true, allows the mouse to draw */
 	protected boolean mouseDraw = false;
-	protected double timeLastPointMs = 0;
+	protected Vector2 lastDrawnPoint = null;
+	/** In screen pixels */
+	protected final float MIN_DISTANCE_BETWEEN_POINTS = 10;
 
 	protected List<Float> inclinationSamples = new ArrayList<Float>();
 	protected final int MAX_SAMPLE_NUMBER = 15;
@@ -141,7 +145,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			frontMost.x = MIDDLE - frontMost.x;
 		}
 
-		System.out.println("leapX: "+frontMost.x+" leapY: "+frontMost.y);
+		System.out.println("leapX: " + frontMost.x + " leapY: " + frontMost.y);
 
 		float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
 			  y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
@@ -149,7 +153,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		x += game.getCamera().position.x - INIT_POS_X;
 		y += game.getCamera().position.y - 2 * INIT_POS_Y;
 
-		System.out.println("x: "+x+" y: "+y);
+		System.out.println("x: " + x + " y: " + y);
 
 		this.game.addDrawPoint(new Vector2(x, y));
 		
@@ -269,21 +273,24 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	public boolean mouseMoved(int screenX, int screenY) {
 		// Put the origin back at the bottom of the screen
 		screenY = Gdx.graphics.getHeight() - screenY;
+		
 		if (this.mouseDraw) {
 			// If the mouse is on screen
-			if (0 <= screenX && screenX <= Gdx.graphics.getWidth()
-					&& 0 <= screenY && screenY <= Gdx.graphics.getHeight()) {
-				double currentTimeMs = System.currentTimeMillis();
-				if (this.timeLastPointMs == 0 || currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
-					this.timeLastPointMs = currentTimeMs;
+			if (Util.in(0, Gdx.graphics.getWidth(), screenX) && Util.in(0, Gdx.graphics.getHeight(), screenY)) {
+				Vector2 screenPoint = new Vector2(screenX, screenY);
+				if (lastDrawnPoint == null || lastDrawnPoint.dst(new Vector2()) >= MIN_DISTANCE_BETWEEN_POINTS) {
+					lastDrawnPoint = screenPoint;
 					
 					// Convert the coordinates from pixels to game coordinates
-					float x = (float) screenX / (Gdx.graphics.getWidth() / this.game.getCamera().viewportWidth),
-					y = (float) screenY / (Gdx.graphics.getHeight() / this.game.getCamera().viewportHeight);
-				
-					x += this.game.getCamera().position.x - INIT_POS_X;
-					y += this.game.getCamera().position.y - INIT_POS_Y;
-
+					// TODO: take zoom into account!
+					FollowCamera c = this.game.getCamera();
+					float x = (float) screenX / (Gdx.graphics.getWidth() / c.viewportWidth),
+					y = (float) screenY / (Gdx.graphics.getHeight() / c.viewportHeight);
+					
+					x += c.position.x - INIT_POS_X;
+					y += c.position.y - INIT_POS_Y;
+					
+					// TODO: impose a maximum on total drawing distance
 					this.game.setDisplayDrawing(true);
 					this.game.addDrawPoint(new Vector2(x, y));
 				}
