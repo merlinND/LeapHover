@@ -26,7 +26,7 @@ public class GameObjectRayCastCallback implements RayCastCallback {
 		Vector2 position = point.cpy();
 		float offset = LevelGenerator.ROCK_RADIUS;
 		if(type == GameObjectType.TREE) {
-			offset += LevelGenerator.TRUNK_HEIGHT;
+			offset = (2 * LevelGenerator.TRUNK_HEIGHT + LevelGenerator.ROCK_RADIUS);
 		} else if(type == GameObjectType.BONUS) {
 			offset = LevelGenerator.BONUS_RADIUS * 2;
 		}
