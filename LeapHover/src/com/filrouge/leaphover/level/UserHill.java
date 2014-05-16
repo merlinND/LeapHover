@@ -3,10 +3,7 @@ package com.filrouge.leaphover.level;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -22,19 +19,20 @@ import com.filrouge.leaphover.util.SimpleDrawer;
  * control points
  * If the hill isn't finished, it's virtual, and the drawing
  * is made by Draw method
- * When the hill is finished, (use FinishDrawing method), a physic hill is create
- * the drawing is made by Box2d itself
+ * When the hill is finished, (use FinishDrawing method), a physical hill is created
+ * and inserted into the world. The rendering is then taken care by the main renderer.
  * 
  * IMPORTANT NOTICE : the box2d engine can fail if the NB_OF_VERTICES_PER_HZTL_UNIT
  * is too important
  * 
- * @ author Damien Gallet
+ * @author Damien Gallet
  */
 
 
 public class UserHill {
 	private Body physicHill;
-	private List<Vector2> controlPoints;	//Vector of java standard library, not a Box2D Vector
+	/** @warning This is Java's standard library Vector2, not a Box2D Vector2 */
+	private List<Vector2> controlPoints;
 	private Vector2[] vertices;
 	private BSCurve bscurveHill;
 	private boolean hillFinished;

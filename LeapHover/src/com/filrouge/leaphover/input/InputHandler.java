@@ -3,7 +3,6 @@ package com.filrouge.leaphover.input;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.leapmotion.leap.Pointable;
 import org.lwjgl.input.Mouse;
 
 import com.badlogic.gdx.Gdx;

@@ -1,12 +1,12 @@
 package com.filrouge.leaphover.input;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import com.filrouge.leaphover.game.LeapHover;
-import com.leapmotion.leap.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.leapmotion.leap.Controller;
+import com.leapmotion.leap.Frame;
+import com.leapmotion.leap.Hand;
+import com.leapmotion.leap.Listener;
+import com.leapmotion.leap.PointableList;
+import com.leapmotion.leap.Vector;
 
 /**
  * Our intermediate interface to process Leap Motion events

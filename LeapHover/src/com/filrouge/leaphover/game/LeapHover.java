@@ -14,21 +14,19 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
-import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.GameObjectType;
+import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.physics.GameObjectRayCastCallback;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
-import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class LeapHover implements ApplicationListener {
 	
