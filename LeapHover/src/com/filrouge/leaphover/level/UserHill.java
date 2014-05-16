@@ -39,7 +39,7 @@ public class UserHill {
 	private EdgeShape shape;
 	private int nbOfVertices = 0;
 	
-	public static final int NB_OF_VERTICES_PER_HZTL_UNIT = 100;
+	public static final int NB_OF_VERTICES_PER_UNIT = 40;
 	public static final float HILL_THICKNESS = 0.01f;
 	
 	public UserHill() {
@@ -55,8 +55,7 @@ public class UserHill {
 		int size = controlPoints.size();
 		// If there is enough control points, create or regenerate a new BSCurve,
 		// and get its vertices
-		if(size >3) {
-		
+		if(size > 3) {
 			if(size == 4) {
 				BodyDef bodyDefinition = new BodyDef();
 				bodyDefinition.type = BodyDef.BodyType.StaticBody;
@@ -65,7 +64,13 @@ public class UserHill {
 			}
 			
 			bscurveHill = new BSCurve(controlPoints);
-			nbOfVertices = Math.abs(Math.round((controlPoints.get(size-1).x-controlPoints.get(0).x)*NB_OF_VERTICES_PER_HZTL_UNIT));
+			
+			// Compute distance covered by the controlled points
+			float distance = 0;
+			for (int i = 1; i < size; ++i)
+				distance += controlPoints.get(i - 1).dst(controlPoints.get(i));
+			
+			nbOfVertices = Math.abs(Math.round(distance * NB_OF_VERTICES_PER_UNIT));
 			System.out.println("Number of vertices " + nbOfVertices);
 			vertices = bscurveHill.getSamples(nbOfVertices);
 			

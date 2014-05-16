@@ -287,9 +287,8 @@ public class LeapHover implements ApplicationListener {
 	 * @param point the point to add to the list of control points
 	 */
 	public void addDrawPoint(Vector2 point) {
-		if(userHills.size()==0 || userHills.get(userHills.size()-1).isFinished())
 		//	Create a new hill if there is no current one
-		{
+		if(userHills.size()==0 || userHills.get(userHills.size()-1).isFinished()) {
 			UserHill newUserHill = new UserHill();
 			newUserHill.addControlPoint(point, world);
 			userHills.add(newUserHill);
