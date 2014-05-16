@@ -164,10 +164,13 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		switch (keycode) {
 		// Augment board inclination
 		case Input.Keys.LEFT:
+		case Input.Keys.Q:
+		case Input.Keys.A:
 			makeInclination((float)Math.PI / 2f, false);
 			break;
 		// Reduce board inclination
 		case Input.Keys.RIGHT:
+		case Input.Keys.D:
 			makeInclination(- (float)Math.PI / 2f, false);
 			break;
 		// Retry lever after losing
@@ -181,6 +184,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		 * charging as soon as possible
 		 */
 		case Input.Keys.DOWN:
+		case Input.Keys.S:
 			game.getHero().startChargingJump();
 			break;
 
@@ -200,6 +204,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 		switch (keycode) {
 		// Trigger jump
 		case Input.Keys.DOWN:
+		case Input.Keys.S:
 			game.getHero().triggerJump();
 			break;
 
@@ -235,6 +240,8 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		this.mouseDraw = true;
 		this.mouseMoved(screenX, screenY);
+		
+		// TODO: cancel drawing on right click
 		return true;
 	}
 
