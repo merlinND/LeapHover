@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.game.LeapHover;
 import com.filrouge.leaphover.physics.GameObjectRayCastCallback;
+import com.filrouge.leaphover.util.Util;
 
 /**
  * Generate an infinitely long level made of increasingly difficult hills.
@@ -29,15 +30,13 @@ public class LevelGenerator {
 	protected static final float DIFFICULTY_FACTOR = 0.1f;
 
 	/** Obstacles */
-	protected static final float LOWER_BOUND_OBSTACLE = 0.000f;
-	protected static final float UPPER_BOUND_OBSTACLE = 0.001f;
+	protected static final float OBSTACLE_PROBABILITY_PER_BLOCK = 0.3f;
 	protected static final float TREE_PROBABILITY = 0.6f;
 	public static final float ROCK_RADIUS = 0.1f;
 	public static final float TRUNK_HEIGHT = 0.1f;
 	public static final float TRUNK_WIDTH = 0.05f;
 	/** Bonus */
-	protected static final float LOWER_BOUND_BONUS = 0.002f;
-	protected static final float UPPER_BOUND_BONUS = 0.003f;
+	protected static final float BONUS_PROBABILITY_PER_BLOCK = 0.1f;
 	public static final float BONUS_RADIUS = 0.05f;
 	
 	
@@ -71,10 +70,13 @@ public class LevelGenerator {
 			float gapWidth = getRandomGapAtPosition(currentX);
 			float smoothness = getSmoothnessAtPosition(currentX);
 			
-			System.out.println("This block starting at " + currentX + " has gap width " + gapWidth);
 			bodyDefinition.position.set(currentX + gapWidth, 0);
 			Body groundBody = world.createBody(bodyDefinition);
 			HillGenerator.makeHill(groundBody, width, height, new Vector2(0f, minY), smoothness);
+			
+			// Possibly add an environment object or a bonus to this block
+			addRandomGameElementBetween(currentX, currentX + width);
+			
 			currentX += width + gapWidth;
 		}
 	}
@@ -119,15 +121,32 @@ public class LevelGenerator {
 	 * OBSTACLES
 	 * ---------
 	 */
+	
+	/**
+	 * Randomly add obstacles & bonuses
+	 * TODO: Add more obstacles at each level (make dependant on "difficulty")
+	 */
+	protected static void addRandomGameElementBetween(float from, float to) {
+		float random = (float)Math.random();
+		GameObjectRayCastCallback callback = LevelGenerator.generateGameObject(random);
+		if (callback != null) {
+			float r = (float)Math.random();
+			Vector2 top = new Vector2(Util.progress(from, to, r), 1f),
+					bottom = top.cpy().sub(0, 1.5f);
+			System.out.println("Game object will be dropped from " + top);
+			LeapHover.getInstance().getWorld().rayCast(callback, top, bottom);
+		}
+	}
+	
 	/**
 	 * 
 	 * @param position
 	 * @param random
 	 * @return null (if out of luck) or the RaycastCallback that need to be executed to place the obstacle in the world
 	 */
-	public static GameObjectRayCastCallback generateGameObject(float random) {
-		boolean isObstacle = in(LOWER_BOUND_OBSTACLE, UPPER_BOUND_OBSTACLE, random),
-				isBonus = in(LOWER_BOUND_BONUS, UPPER_BOUND_BONUS, random);
+	protected static GameObjectRayCastCallback generateGameObject(float random) {
+		boolean isObstacle = (random <= OBSTACLE_PROBABILITY_PER_BLOCK),
+				isBonus = (random <= BONUS_PROBABILITY_PER_BLOCK);
 		if (!isObstacle && !isBonus)
 			return null;
 		
@@ -137,7 +156,7 @@ public class LevelGenerator {
 		bodyDefinition.angularDamping = 1f;
 		Body body = LeapHover.getInstance().getWorld().createBody(bodyDefinition);		
 		
-		if(isBonus)
+		if(isObstacle)
 			return makeObstacle(body, random);
 		else
 			return makeBonus(body, random);
@@ -155,7 +174,8 @@ public class LevelGenerator {
 		// With some probability, create a tree
 		if(Math.random() <= TREE_PROBABILITY) {
 			PolygonShape pshape = new PolygonShape();
-			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT, new Vector2(0, -ROCK_RADIUS), 0f);
+			pshape.setAsBox(TRUNK_WIDTH, TRUNK_HEIGHT,
+							new Vector2(0, - ROCK_RADIUS), 0f);
 			body.createFixture(pshape, 0);
 			pshape.dispose();
 			
@@ -175,16 +195,6 @@ public class LevelGenerator {
 		cshape.dispose();
 		
 		return new GameObjectRayCastCallback(type, body);
-	}
-	
-	/**
-	 * @param min
-	 * @param max
-	 * @param x
-	 * @return min <= x <= max
-	 */
-	protected static boolean in(float min, float max, float x) {
-		return (min <= x) && (x <= max);
 	}
 	
 	/*

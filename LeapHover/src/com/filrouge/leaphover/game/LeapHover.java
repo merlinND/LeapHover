@@ -19,7 +19,6 @@ import com.filrouge.leaphover.graphics.MessageDisplay;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
-import com.filrouge.leaphover.physics.GameObjectRayCastCallback;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
 
@@ -153,7 +152,6 @@ public class LeapHover implements ApplicationListener {
 			this.score.incLevel(this.hero.getPosition().x);
 			MessageDisplay.addMessage("Level " + this.score.getLevel());
 			
-			// TODO: leave space between current world end and next world begin
 			LevelGenerator.generate(world, currentWorldWidth, currentWorldWidth + WORLD_CHUNK_WIDTH, camera.viewportHeight);
 			currentWorldWidth += WORLD_CHUNK_WIDTH;
 			
@@ -176,7 +174,7 @@ public class LeapHover implements ApplicationListener {
 		this.lost = false;
 		this.message = "";
 
-		// TODO: make sure all user lines (drawings) and random environment is cleared
+		// TODO: make sure all user lines (drawings) are cleared properly
 		
 		// Move to the very beginning of the level
 		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
@@ -222,8 +220,6 @@ public class LeapHover implements ApplicationListener {
 		if (hero.getPosition().y < WORLD_MINIMUM_Y)
 			loseGame();
 		
-		this.addRandomGameElement();
-		
 		this.trick.newAngle(this.heroInclination);
 		
 		// Level streaming: generate more level if needed
@@ -252,20 +248,6 @@ public class LeapHover implements ApplicationListener {
 	public void drawingStep() {
 		for(int i = 0; i < userHills.size(); i++) {
 			userHills.get(i).Draw();
-		}
-	}
-	
-	/**
-	 * Randomly add obstacles & bonuses
-	 * TODO: Add more obstacles at each level (make dependant on "difficulty")
-	 */
-	private void addRandomGameElement() {
-		float random = (float)Math.random();
-		GameObjectRayCastCallback callback = LevelGenerator.generateGameObject(random);
-		if (callback != null) {
-			Vector2 heroPosition = hero.getPosition();
-			// TODO: randomize obstacle position
-			world.rayCast(callback, heroPosition.add(1f, 1f), new Vector2(heroPosition.x, 0));
 		}
 	}
 	

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.filrouge.leaphover.util.BSCurve;
+import com.filrouge.leaphover.util.Util;
 
 public class HillGenerator {
 	/*
@@ -124,7 +125,7 @@ public class HillGenerator {
 		float delta = 1 / (float)(n - 1);
 		float alpha = 0;
 		for (int i = 0; i < n; ++i) {
-			points[i] = new Vector2(progress(xMin, xMax, alpha), 0);
+			points[i] = new Vector2(Util.progress(xMin, xMax, alpha), 0);
 			alpha += delta;
 		}
 
@@ -182,16 +183,6 @@ public class HillGenerator {
 	 */
 	protected static float random(float min, float max) {
 		return (float)(Math.random() * (max - min)) + min;
-	}
-
-	/**
-	 * @param min
-	 * @param max
-	 * @param progress
-	 * @return The number corresponding to <code>progress</code> percent of the given interval
-	 */
-	protected static float progress(float min, float max, float progress) {
-		return progress * (max - min) + min;
 	}
 	
 	/*
