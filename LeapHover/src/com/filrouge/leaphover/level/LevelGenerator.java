@@ -30,13 +30,13 @@ public class LevelGenerator {
 	protected static final float DIFFICULTY_FACTOR = 0.1f;
 
 	/** Obstacles */
-	protected static final float OBSTACLE_PROBABILITY_PER_BLOCK = 1f;
-	protected static final float TREE_PROBABILITY = 1f;
+	protected static final float OBSTACLE_PROBABILITY_PER_BLOCK = 0.1f;
+	protected static final float TREE_PROBABILITY = 0.5f;
 	public static final float ROCK_RADIUS = 0.1f;
 	public static final float TRUNK_WIDTH = 0.025f;
 	public static final float TRUNK_HEIGHT = 0.05f;
 	/** Bonus */
-	protected static final float BONUS_PROBABILITY_PER_BLOCK = 0.1f;
+	protected static final float BONUS_PROBABILITY_PER_BLOCK = 1f;
 	public static final float BONUS_RADIUS = 0.05f;
 	
 	

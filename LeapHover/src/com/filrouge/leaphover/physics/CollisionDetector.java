@@ -23,9 +23,9 @@ public class CollisionDetector implements ContactListener {
 	public void beginContact(Contact contact) {
 		Fixture a = contact.getFixtureA();
         Fixture b = contact.getFixtureB();
-        if (a.equals(target) || b.equals(target) && 
-        		(a.getShape().getRadius() == LevelGenerator.BONUS_RADIUS ||
-        		b.getShape().getRadius() == LevelGenerator.BONUS_RADIUS)) {
+        if ((a.equals(target) || b.equals(target)) && 
+        		(a.getShape().getRadius() != LevelGenerator.BONUS_RADIUS &&
+        		b.getShape().getRadius() != LevelGenerator.BONUS_RADIUS)) {
         	try {
 				callback.call();
 			} catch (Exception e) {
@@ -57,7 +57,7 @@ public class CollisionDetector implements ContactListener {
         		(LeapHover.getInstance().getHero().getBody().getFixtureList().contains(a, false) || 
         				LeapHover.getInstance().getHero().getBody().getFixtureList().contains(b, false))) {
         	Fixture bonus = (a.getShape().getRadius() == LevelGenerator.BONUS_RADIUS) ? a : b;
-        	
+        	contact.setEnabled(false);
         	LeapHover.getInstance().bonusPicked(bonus);
         }
 	}
