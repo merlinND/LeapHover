@@ -162,8 +162,6 @@ public class LeapHover implements ApplicationListener {
 			float maxX = currentWorldWidth - (camera.viewportWidth / 2f);
 			maxX = Math.max(camera.viewportWidth, maxX);
 			maximumCameraPosition = new Vector3(maxX, camera.viewportHeight / 2f, 0f);
-			
-			System.out.println("Generated world up to " + currentWorldWidth);
 		}
 	}
 	
@@ -213,9 +211,9 @@ public class LeapHover implements ApplicationListener {
 	
 	/**
 	 * Contains all game logic
-	 * @param delta
+	 * @param deltaTime
 	 */
-	public void step(float delta) {
+	public void step(float deltaTime) {
 		// If hero falls off screen, reset its position
 		if (hero.getPosition().y < WORLD_MINIMUM_Y)
 			loseGame();
@@ -228,7 +226,7 @@ public class LeapHover implements ApplicationListener {
 		extendWorldIfNecessary();
 		
 		if(!this.paused) {
-			hero.step();
+			hero.step(deltaTime);
 			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTIVE_ZOOM_POW) + ADAPTIVE_ZOOM_CONST;
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 
@@ -250,12 +248,14 @@ public class LeapHover implements ApplicationListener {
 	 */
 	@Override
 	public void render() {
+		float deltaTime = Gdx.graphics.getDeltaTime();
+		
 		// Clear screen
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		// ----- Update game logic
-		step(Gdx.graphics.getDeltaTime());
+		step(deltaTime);
 		// Make the camera follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		
@@ -270,7 +270,7 @@ public class LeapHover implements ApplicationListener {
 			hill.draw();
 		
 		// Hero (including particle effects)
-		hero.render(spriteBatch);
+		hero.render(spriteBatch, deltaTime);
 		spriteBatch.end();
 		
 		// UI

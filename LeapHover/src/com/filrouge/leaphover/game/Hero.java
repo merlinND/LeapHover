@@ -35,10 +35,10 @@ public class Hero {
 	protected static final float MAX_DIST_CHARGE = 2;
 	
 	// ----- Spring effect
-	public static final float REACTOR_HEIGHT = 0.15f;
-	public static final float SPRING_CONSTANT = 0.15f;
-	public static final float MAX_SPRING_FORCE = 1f;
-	public static final float DAMPENING_FACTOR = 0.11f;	
+	public static final float	REACTOR_HEIGHT = 0.15f,
+								SPRING_CONSTANT = 0.15f,
+								MAX_SPRING_FORCE = 1f,
+								DAMPENING_FACTOR = 0.11f;	
 	protected HoverRayCastCallback callbackFront;
 	protected HoverRayCastCallback callbackBack;
 	protected float currentTargetHeight = REACTOR_HEIGHT;
@@ -83,10 +83,9 @@ public class Hero {
 		thrusterBack = new ThrusterEffect(0.0005f);
 	}
 	
-	public void step() {
+	public void step(float deltaTime) {
 		// Manage jump charging and jump duration
 		if (isChargingJump) {
-			// TODO: check computations
 			// TODO: stop charging jump automatically when the ability to jump is lost
 			
 			/*float charged = (jumpSteps * JUMP_CHARGE_RATIO);
@@ -97,8 +96,7 @@ public class Hero {
 			
 			// The jump charge depends on the current height of the hand
 			if(this.getBody().getPosition().x - this.chargingBeginningX < Hero.MAX_DIST_CHARGE) {
-				this.currentTargetHeight = 0.25f*this.currentHandHeight;
-			
+				this.currentTargetHeight = 0.25f * this.currentHandHeight;
 				jumpSteps++;
 			} else {
 				triggerJump();
@@ -115,20 +113,11 @@ public class Hero {
 		Vector2 startOfRay = this.body.getWorldCenter();
 		float angle = this.body.getAngle();
 		
-		Vector2 front = new Vector2(startOfRay).add((float) (this.boardWidth / 2*Math.cos(angle)), 
-													(float) (this.boardWidth / 2*Math.sin(angle)));
-		Vector2 back = new Vector2(startOfRay).add((float) (- this.boardWidth / 2*Math.cos(angle)), 
-												   (float) (- this.boardWidth / 2*Math.sin(angle)));
+		Vector2 front = new Vector2(startOfRay).add((float) (this.boardWidth / 2 * Math.cos(angle)), 
+													(float) (this.boardWidth / 2 * Math.sin(angle)));
+		Vector2 back = new Vector2(startOfRay).add((float) (- this.boardWidth / 2 * Math.cos(angle)), 
+												   (float) (- this.boardWidth / 2 * Math.sin(angle)));
 		
-		/**
-		 * Ray to detect bonus items
-		 * TODO : Add RayCastCallBack
-		 */
-		/*Vector2 startRayBonus = new Vector2(startOfRay).add((float) (this.boardWidth * Math.cos(angle)), 
-													(float) (this.boardWidth * Math.sin(angle)));
-		Vector2 endRayBonus = new Vector2(startRayBonus).add((float) (this.boardWidth / 5 * Math.cos(angle)), 
-															(float) (this.boardWidth / 5 * Math.sin(angle)));
-		*/
 		Vector2 normal = new Vector2((float)Math.sin(angle),
 								   - (float)Math.cos(angle));
 		normal.scl(currentTargetHeight);
@@ -159,9 +148,9 @@ public class Hero {
 		thrusterBack.setRotation(angle);
 	}
 	
-	public void render(SpriteBatch batch) {
-		thrusterFront.draw(batch, Gdx.graphics.getDeltaTime());
-		thrusterBack.draw(batch, Gdx.graphics.getDeltaTime());
+	public void render(SpriteBatch batch, float deltaTime) {
+		thrusterFront.draw(batch, deltaTime);
+		thrusterBack.draw(batch, deltaTime);
 	}
 	
 	public void resetTo(Vector2 position, float inclination) {
@@ -171,7 +160,7 @@ public class Hero {
 	}
 
 	/**
-	 * TODO: reduce "rebound" effect: the spring should not allow make us rebound after falling from a large height
+	 * TODO: reduce "rebound" effect: the spring should not allow to make us rebound after falling from a large height
 	 * @param position Point at which to apply the springing force
 	 * @param callback
 	 * @see http://www.iforce2d.net/b2dtut/suspension
@@ -183,7 +172,6 @@ public class Hero {
 		distanceToGround = Math.abs(distanceToGround);
 		if(distanceToGround < currentTargetHeight) {
 			// Dampening
-			// TODO : fix dampening computation to take into account both directions?
 			distanceToGround += DAMPENING_FACTOR * body.getLinearVelocity().y;
 			
 			float magnitude = SPRING_CONSTANT * (currentTargetHeight - distanceToGround);
@@ -195,10 +183,6 @@ public class Hero {
 										  (float)Math.cos(angle));
 			force.scl(magnitude);
 			body.applyForce(force, position, true);
-			
-			// Debug drawing
-			/*Vector2 end = position.cpy().add(force.cpy().scl(10f));
-			SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(), position, end, Color.RED);*/
 		}
 		
 	}
