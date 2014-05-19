@@ -191,7 +191,7 @@ public class LeapHover implements ApplicationListener {
 		MessageDisplay.addMessage("Bonus picked");
 	}
 	
-	private void deleteBonus() {
+	private void deleteBonusIfNecessary() {
 		if (this.toBeDeleted != null) {
 			this.world.destroyBody(this.toBeDeleted.getBody());
 			this.toBeDeleted = null;
@@ -221,6 +221,8 @@ public class LeapHover implements ApplicationListener {
 		if (hero.getPosition().y < WORLD_MINIMUM_Y)
 			loseGame();
 		
+		this.deleteBonusIfNecessary();
+		
 		this.trick.newAngle(this.heroInclination);
 		
 		// Level streaming: generate more level if needed
@@ -229,10 +231,7 @@ public class LeapHover implements ApplicationListener {
 		if(!this.paused) {
 			hero.step();
 			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTIVE_ZOOM_POW) + ADAPTIVE_ZOOM_CONST;
-			System.out.println("zoom: " + camera.zoom);
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
-			
-			drawingStep();
 
 			// Apply hero inclination smoothly
 			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
@@ -247,12 +246,6 @@ public class LeapHover implements ApplicationListener {
 		}
 	}
 	
-	public void drawingStep() {
-		for (UserHill hill : userHills) {
-			hill.draw();
-		}
-	}
-	
 	/**
 	 * Contains <strong>only</strong> display-related code
 	 */
@@ -261,9 +254,6 @@ public class LeapHover implements ApplicationListener {
 		// Clear screen
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		spriteBatch.begin();
-		
-		this.deleteBonus();
 
 		// ----- Update game logic
 		step(Gdx.graphics.getDeltaTime());
@@ -271,19 +261,30 @@ public class LeapHover implements ApplicationListener {
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		
 		// ----- Do rendering
-		hero.render(spriteBatch);
-		if (message.length() > 0)
-			displayFont.draw(spriteBatch, message, 100, 100);
-
-		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		spriteBatch.begin();
 		
+		// All physical objects
+		debugRenderer.render(world, camera.combined);
+		
+		// User hills
+		for (UserHill hill : userHills)
+			hill.draw();
+		
+		// Hero (including particle effects)
+		hero.render(spriteBatch);
 		spriteBatch.end();
+		
+		// UI
+		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		if (message.length() > 0) {
+			spriteBatch.begin();
+			displayFont.draw(spriteBatch, message, 75, 100);
+			spriteBatch.end();
+		}
 
 		if (this.pointer != null) {
 			SimpleDrawer.drawCross(camera, pointer.x, pointer.y, POINTER_RADIUS, Color.RED);
 		}
-
-		debugRenderer.render(world, camera.combined);
 	}
 
 

@@ -10,7 +10,7 @@ import com.leapmotion.leap.Vector;
 
 /**
  * Our intermediate interface to process Leap Motion events
- * @author R��mi Martin et Gustave Monod
+ * @author Rémi Martin, Gustave Monod
  */
 public abstract class LeapListener extends Listener
 {
