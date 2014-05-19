@@ -145,8 +145,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			frontMost.x = MIDDLE - frontMost.x;
 		}
 
-		System.out.println("leapX: " + frontMost.x + " leapY: " + frontMost.y);
-
 		float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
 			  y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
 

@@ -172,7 +172,7 @@ public abstract class LeapListener extends Listener
 		}
 
 		float angle = - motionHand.palmNormal().pitch();
-		handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
+		//handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
 	}
 
 	/**

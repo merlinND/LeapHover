@@ -8,7 +8,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.filrouge.leaphover.game.LeapHover;
 import com.filrouge.leaphover.util.BSCurve;
 import com.filrouge.leaphover.util.SimpleDrawer;
@@ -82,6 +84,7 @@ public class UserHill {
 	 */
 	public void finishDrawing() {
 		hillFinished = true;
+		boolean intersect = false;
 		if(nbOfVertices>1) {
 			BodyDef physicHillDef = new BodyDef();
 			
@@ -90,38 +93,46 @@ public class UserHill {
 			Vector2 offset = new Vector2(vertices[0]);
 			position.scl(0.5f);
 			offset.scl(-0.5f);
+			Array<Fixture> heroFixtures = LeapHover.getInstance().getHero().getBody().getFixtureList();
 			for(int i = 0; i < nbOfVertices; i++) {
 				vertices[i].add(offset);
+				for(int j = 0; j < heroFixtures.size; ++j) {
+					if(heroFixtures.get(j).testPoint(vertices[i])) {
+						intersect = true;
+					}
+				}
 			}
 			
-			//Creates the physic hill
-			//Merci Merlin!
-			physicHillDef.position.set(position);
-			physicHill = LeapHover.getInstance().getWorld().createBody(physicHillDef);
-			
-			Vector2 previous = vertices[0];
-			for(int i = 1; i < nbOfVertices; ++i) {
-				shape.set(previous, vertices[i]);
+			if(!intersect) {
+				//Creates the physic hill
+				//Merci Merlin!
+				physicHillDef.position.set(position);
+				physicHill = LeapHover.getInstance().getWorld().createBody(physicHillDef);
+				
+				Vector2 previous = vertices[0];
+				for(int i = 1; i < nbOfVertices; ++i) {
+					shape.set(previous, vertices[i]);
+					physicHill.createFixture(shape, 0);
+	
+					previous = vertices[i];
+				}
+				// Below side
+				Vector2 thicknessVector = new Vector2(0, - HILL_THICKNESS);	//ADD A CONSTANT HERE
+				
+				for(int i = nbOfVertices - 2; i >= 0; --i) {
+					vertices[i].add(thicknessVector);
+					shape.set(previous, vertices[i]);
+					physicHill.createFixture(shape, 0);
+	
+					previous = vertices[i];
+				}
+				
+				//Makes the connection between last and first vertices
+				shape.set(previous, new Vector2(vertices[0].x,vertices[0].y+HILL_THICKNESS));
 				physicHill.createFixture(shape, 0);
-
-				previous = vertices[i];
+				
+				shape.dispose();
 			}
-			// Below side
-			Vector2 thicknessVector = new Vector2(0, - HILL_THICKNESS);	//ADD A CONSTANT HERE
-			
-			for(int i = nbOfVertices - 2; i >= 0; --i) {
-				vertices[i].add(thicknessVector);
-				shape.set(previous, vertices[i]);
-				physicHill.createFixture(shape, 0);
-
-				previous = vertices[i];
-			}
-			
-			//Makes the connection between last and first vertices
-			shape.set(previous, new Vector2(vertices[0].x,vertices[0].y+HILL_THICKNESS));
-			physicHill.createFixture(shape, 0);
-			
-			shape.dispose();
 		}
 	}
 	
