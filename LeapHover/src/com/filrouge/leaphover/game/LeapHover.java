@@ -17,7 +17,6 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
-import com.filrouge.leaphover.input.LeapListener;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
