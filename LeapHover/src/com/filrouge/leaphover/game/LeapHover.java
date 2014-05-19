@@ -17,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.filrouge.leaphover.graphics.MessageDisplay;
+import com.filrouge.leaphover.input.LeapListener;
 import com.filrouge.leaphover.level.LevelGenerator;
 import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
@@ -30,7 +31,11 @@ public class LeapHover implements ApplicationListener {
 	 * PROPERTIES
 	 */
 	protected World world;
-	
+
+	/** Used in order to convert the coordinates */
+	protected final float INIT_POS_X = 0.5f;
+	protected final float INIT_POS_Y = 0.375f;
+
 	protected final float WORLD_GENERATION_THRESHOLD = 1f;
 	protected final float WORLD_CHUNK_WIDTH = 5 * WORLD_GENERATION_THRESHOLD;
 	/** We consider the game lost if the player gets under this height */
@@ -183,6 +188,20 @@ public class LeapHover implements ApplicationListener {
 		this.hero.resetTo(position, INITIAL_HERO_INCLINATION);
 		setHeroInclination(INITIAL_HERO_INCLINATION);
 	}
+	
+	private Vector2 gameCoordinatesFromInputHandler (Vector2 ratio, Vector2 offset) {
+		Vector2 result = new Vector2();
+		result.x = ratio.x * this.getCamera().viewportWidth;
+		result.y = ratio.y * this.getCamera().viewportHeight;
+
+		result.x += this.getCamera().position.x + offset.x;
+		result.y += this.getCamera().position.y + offset.y;
+		
+//		result.x /= this.getCamera().zoom;
+//		result.y /= this.getCamera().zoom;
+		
+		return result;
+	}
 
 	public void bonusPicked(Fixture fixture) {
 		this.toBeDeleted = fixture;
@@ -204,7 +223,7 @@ public class LeapHover implements ApplicationListener {
 		this.paused = true;
 		this.lost = true;
 		
-		this.message = "You just lost the game. Your scored : " + Math.round(score) + " points.";
+		this.message = "You just lost the game. You scored : " + Math.round(score) + " points.";
 	}
 	
 	@Override
@@ -290,9 +309,12 @@ public class LeapHover implements ApplicationListener {
 
 	/**
 	 * Adds a control point for the drawing.
-	 * @param point the point to add to the list of control points
+	 * @param ratio the ratio of the point to add to the list of control points
+	 * @param offset the offset of the point to add to the list of control points
 	 */
-	public void addDrawPoint(Vector2 point) {
+	public void addDrawPoint(Vector2 ratio, Vector2 offset) {
+		Vector2 point = gameCoordinatesFromInputHandler(ratio, offset);
+
 		//	Create a new hill if there is no current one
 		if(userHills.size()==0 || userHills.get(userHills.size()-1).isFinished()) {
 			UserHill newUserHill = new UserHill();
@@ -300,7 +322,6 @@ public class LeapHover implements ApplicationListener {
 			userHills.add(newUserHill);
 		}
 		userHills.get(userHills.size()-1).addControlPoint(point, world);
-		//drawingPoints.add(point);
 	}
 
 	/**
@@ -357,10 +378,16 @@ public class LeapHover implements ApplicationListener {
 
 	/**
 	 * Sets the pointer parameter, used to know whether something should be drawn on the screen.
-	 * @param pointer where to draw the pointer (null for nowhere)
+	 * @param ratio the ratio of where to draw the pointer (null for nowhere)
+	 * @param offset the offset of where to draw the pointer (null for nowhere)
 	 */
-	public void setPointer (Vector2 pointer) {
-		this.pointer = pointer;
+	public void setPointer (Vector2 ratio, Vector2 offset) {
+		if (ratio == null || offset == null) {
+			this.pointer = null;
+		}
+		else {
+			this.pointer = gameCoordinatesFromInputHandler(ratio, offset);
+		}
 	}
 
 }

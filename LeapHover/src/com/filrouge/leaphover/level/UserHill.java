@@ -140,7 +140,7 @@ public class UserHill {
 	 * Render the curve (only if it isn't finished)
 	 */
 	public void draw() {
-		if(!hillFinished && nbOfVertices > 1) {
+		if (!hillFinished && nbOfVertices > 1) {
 			Vector2 previous = vertices[0];
 			for(Vector2 vertex : vertices) {
 				SimpleDrawer.drawLine(LeapHover.getInstance().getCamera(),previous,vertex,Color.WHITE);

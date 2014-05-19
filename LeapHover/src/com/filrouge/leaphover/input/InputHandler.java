@@ -144,15 +144,27 @@ public class InputHandler extends LeapListener implements InputProcessor {
 			frontMost.x = MIDDLE - frontMost.x;
 		}
 
-		float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
-			  y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
+		// Converts the coordinates from leap coordinates to (intermediate) game coordinates and offset
+		// Indeed, the camera width (c.viewportWidth) should NOT be accessed outside of game.render()
+		// However, what we need to do is:
 
-		x += game.getCamera().position.x - INIT_POS_X;
-		y += game.getCamera().position.y - 2 * INIT_POS_Y;
+		// float x = frontMost.x / (DETECTION_WIDTH / c.viewportWidth);
+		// float y = frontMost.y / (DETECTION_HEIGHT / c.viewportHeight);
+		// x += c.position.x - INIT_POS_X;
+		// y += c.position.y - 2 * INIT_POS_Y;
 
-		System.out.println("x: " + x + " y: " + y);
+		// So we first calculate the ratio, and then the offset, so that the complete conversion can be done
+		// in the game.render() method.
 
-		this.game.addDrawPoint(new Vector2(x, y));
+		Vector2 ratio = new Vector2(), offset = new Vector2();
+
+		ratio.x = frontMost.x / DETECTION_WIDTH;
+		ratio.y = frontMost.y / DETECTION_HEIGHT;
+
+		offset.x = -INIT_POS_X;
+		offset.y = -2 * INIT_POS_Y;
+
+		this.game.addDrawPoint(ratio, offset);
 		
 		return false;
 	}
@@ -160,13 +172,27 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	@Override
 	public boolean pointerMove (Vector2 frontMost) {
 		if (frontMost != null && game != null) {
-			float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
-					y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
-	
-			x += game.getCamera().position.x - INIT_POS_X;
-			y += game.getCamera().position.y - 2 * INIT_POS_Y;
+			// Converts the coordinates from leap coordinates to (intermediate) game coordinates and offset
+			// Indeed, the camera width (c.viewportWidth) should NOT be accessed outside of game.render()
+			// However, what we need to do is:
+
+			// float x = frontMost.x / (DETECTION_WIDTH / c.viewportWidth);
+			// float y = frontMost.y / (DETECTION_HEIGHT / c.viewportHeight);
+			// x += c.position.x - INIT_POS_X;
+			// y += c.position.y - 2 * INIT_POS_Y;
+
+			// So we first calculate the ratio, and then the offset, so that the complete conversion can be done
+			// in the game.render() method.
+
+			Vector2 ratio = new Vector2(), offset = new Vector2();
+
+			ratio.x = frontMost.x / DETECTION_WIDTH;
+			ratio.y = frontMost.y / DETECTION_HEIGHT;
+
+			offset.x = -INIT_POS_X;
+			offset.y = -2 * INIT_POS_Y;
 			
-			game.setPointer(new Vector2(x, y));
+			game.setPointer(ratio, offset);
 		}
 		
 		return false;
@@ -174,7 +200,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	
 	public boolean noPointer() {
 		if (this.game != null) {
-			game.setPointer(null);
+			game.setPointer(null, null);
 		}
 		return false;
 	}
@@ -300,17 +326,28 @@ public class InputHandler extends LeapListener implements InputProcessor {
 				if (lastDrawnPoint == null || lastDrawnPoint.dst(new Vector2()) >= MIN_DISTANCE_BETWEEN_POINTS) {
 					lastDrawnPoint = screenPoint;
 					
-					// Convert the coordinates from pixels to game coordinates
-					// TODO: take zoom into account!
-					FollowCamera c = this.game.getCamera();
-					float x = (float) screenX / (Gdx.graphics.getWidth() / c.viewportWidth),
-					y = (float) screenY / (Gdx.graphics.getHeight() / c.viewportHeight);
+					// Converts the coordinates from pixels to (intermediate) game coordinates and offset
+					// Indeed, the camera width (c.viewportWidth) should NOT be accessed outside of game.render()
+					// However, what we need to do is:
 					
-					x += c.position.x - INIT_POS_X;
-					y += c.position.y - INIT_POS_Y;
+					// float x = (float) screenX / (Gdx.graphics.getWidth() / c.viewportWidth);
+					// float y = (float) screenY / (Gdx.graphics.getHeight() / c.viewportHeight);
+					// x += c.position.x - INIT_POS_X;
+					// y += c.position.y - INIT_POS_Y;
+					
+					// So we first calculate the ratio, and then the offset, so that the complete conversion can be done
+					// in the game.render() method.
+
+					Vector2 ratio = new Vector2(), offset = new Vector2();
+
+					ratio.x = (float) screenX / (Gdx.graphics.getWidth());
+					ratio.y = (float) screenY / (Gdx.graphics.getHeight());
+					
+					offset.x = -INIT_POS_X;
+					offset.y = -INIT_POS_Y;
 					
 					// TODO: impose a maximum on total drawing distance
-					this.game.addDrawPoint(new Vector2(x, y));
+					this.game.addDrawPoint(ratio, offset);
 				}
 			}
 		}
