@@ -35,20 +35,17 @@ public class SimpleDrawer {
 	}
 	
 	public static void drawCross(Camera camera, float x, float y, float radius, Color color) {
+		renderer.setProjectionMatrix(camera.combined);
+		renderer.begin(ShapeType.Line);
+		renderer.setColor(color);
+
 		Vector2 begin = new Vector2(x - radius, y - radius),
 				end   = new Vector2(x + radius, y + radius);
-		renderer.setProjectionMatrix(camera.combined);
-		renderer.begin(ShapeType.Line);
-		renderer.setColor(color);
 		renderer.line(begin, end);
-		renderer.end();
-
 		begin = new Vector2(x - radius, y + radius);
 		end   = new Vector2(x + radius, y - radius);
-		renderer.setProjectionMatrix(camera.combined);
-		renderer.begin(ShapeType.Line);
-		renderer.setColor(color);
 		renderer.line(begin, end);
+
 		renderer.end();
 	}
 

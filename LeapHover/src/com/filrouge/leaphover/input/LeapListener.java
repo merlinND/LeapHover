@@ -10,7 +10,7 @@ import com.leapmotion.leap.Vector;
 
 /**
  * Our intermediate interface to process Leap Motion events
- * @author R��mi Martin et Gustave Monod
+ * @author Rémi Martin, Gustave Monod
  */
 public abstract class LeapListener extends Listener
 {
@@ -179,7 +179,7 @@ public abstract class LeapListener extends Listener
 			handHeight(y / maxHeight);
 		}
 
-		float angle = - motionHand.palmNormal().pitch();
+		//float angle = - motionHand.palmNormal().pitch();
 		//handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
 	}
 

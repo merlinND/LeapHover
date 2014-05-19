@@ -127,7 +127,6 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer = new Box2DDebugRenderer();
 		spriteBatch = new SpriteBatch();
 		displayFont = new BitmapFont();
-		displayFont.setScale(3f);
 		
 		setupTestScene();
 	}
@@ -168,8 +167,6 @@ public class LeapHover implements ApplicationListener {
 			float maxX = currentWorldWidth - (camera.viewportWidth / 2f);
 			maxX = Math.max(camera.viewportWidth, maxX);
 			maximumCameraPosition = new Vector3(maxX, camera.viewportHeight / 2f, 0f);
-			
-			System.out.println("Generated world up to " + currentWorldWidth);
 		}
 	}
 	
@@ -210,7 +207,7 @@ public class LeapHover implements ApplicationListener {
 		MessageDisplay.addMessage("Bonus picked");
 	}
 	
-	private void deleteBonus() {
+	private void deleteBonusIfNecessary() {
 		if (this.toBeDeleted != null) {
 			this.world.destroyBody(this.toBeDeleted.getBody());
 			this.toBeDeleted = null;
@@ -233,12 +230,14 @@ public class LeapHover implements ApplicationListener {
 	
 	/**
 	 * Contains all game logic
-	 * @param delta
+	 * @param deltaTime
 	 */
-	public void step(float delta) {
+	public void step(float deltaTime) {
 		// If hero falls off screen, reset its position
 		if (hero.getPosition().y < WORLD_MINIMUM_Y)
 			loseGame();
+		
+		this.deleteBonusIfNecessary();
 		
 		this.trick.newAngle(this.heroInclination);
 		
@@ -246,12 +245,9 @@ public class LeapHover implements ApplicationListener {
 		extendWorldIfNecessary();
 		
 		if(!this.paused) {
-			hero.step();
+			hero.step(deltaTime);
 			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTIVE_ZOOM_POW) + ADAPTIVE_ZOOM_CONST;
-			System.out.println("zoom: " + camera.zoom);
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
-			
-			drawingStep();
 
 			// Apply hero inclination smoothly
 			float angle = (hero.getBody().getAngle() + getHeroInclination()) / 2f;
@@ -266,43 +262,53 @@ public class LeapHover implements ApplicationListener {
 		}
 	}
 	
-	public void drawingStep() {
-		for (UserHill hill : userHills) {
-			hill.draw();
-		}
-	}
-	
 	/**
 	 * Contains <strong>only</strong> display-related code
 	 */
 	@Override
 	public void render() {
+		float deltaTime = Gdx.graphics.getDeltaTime();
+		
 		// Clear screen
 		Gdx.gl.glClearColor(0, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		spriteBatch.begin();
-		
-		this.deleteBonus();
 
 		// ----- Update game logic
-		step(Gdx.graphics.getDeltaTime());
+		step(deltaTime);
 		// Make the camera follow the hero
 		camera.follow(hero.getPosition(), initialCameraPosition, maximumCameraPosition);
 		
 		// ----- Do rendering
-		hero.render(spriteBatch);
-		if (message.length() > 0)
-			displayFont.draw(spriteBatch, message, 100, 100);
-
-		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		spriteBatch.begin();
 		
+		// All physical objects
+		debugRenderer.render(world, camera.combined);
+		
+		// User hills
+		for (UserHill hill : userHills)
+			hill.draw();
+		
+		// Hero (including particle effects)
+		hero.render(spriteBatch, deltaTime);
 		spriteBatch.end();
-
+		
+		// UI
+		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		displayFont.setScale(2f);
+		if (message.length() > 0) {
+			spriteBatch.begin();
+			displayFont.draw(spriteBatch, message, 225, 100);
+			spriteBatch.end();
+		}
+		if (score.getScore() > 10) {
+			spriteBatch.begin();
+			displayFont.draw(spriteBatch, "> " + Math.round(score.getScore()), 30, Gdx.graphics.getHeight() - 30);
+			spriteBatch.end();
+		}
+		
 		if (this.pointer != null) {
 			SimpleDrawer.drawCross(camera, pointer.x, pointer.y, POINTER_RADIUS, Color.RED);
 		}
-
-		debugRenderer.render(world, camera.combined);
 	}
 
 
