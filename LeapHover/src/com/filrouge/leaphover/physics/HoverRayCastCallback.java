@@ -24,7 +24,8 @@ public class HoverRayCastCallback implements RayCastCallback {
 			float fraction) {
 		// If not bonus
 		// TODO: make cleaner
-		if(fixture.getShape().getRadius() != LevelGenerator.BONUS_RADIUS) {
+		// TODO: fix null pointer exception on this line (when drawing over hero)
+		if (fixture.getShape().getRadius() != LevelGenerator.BONUS_RADIUS) {
 		
 			float dist = position.dst(point);
 			

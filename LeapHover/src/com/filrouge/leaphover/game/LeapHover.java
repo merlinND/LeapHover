@@ -6,6 +6,7 @@ import java.util.concurrent.Callable;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -21,6 +22,7 @@ import com.filrouge.leaphover.level.UserHill;
 import com.filrouge.leaphover.physics.CollisionDetector;
 import com.filrouge.leaphover.score.Score;
 import com.filrouge.leaphover.score.Trick;
+import com.filrouge.leaphover.util.SimpleDrawer;
 
 public class LeapHover implements ApplicationListener {
 	
@@ -38,8 +40,8 @@ public class LeapHover implements ApplicationListener {
 	protected FollowCamera camera;
 	protected Vector3 initialCameraPosition, maximumCameraPosition;
 	
-	public static final float ADAPTATIVE_ZOOM_POW = 2;
-	public static final float ADAPTATIVE_ZOOM_CONST = 1;
+	public static final float ADAPTIVE_ZOOM_POW = 2;
+	public static final float ADAPTIVE_ZOOM_CONST = 1;
 	
 	protected Box2DDebugRenderer debugRenderer;
 	protected SpriteBatch spriteBatch;
@@ -56,7 +58,9 @@ public class LeapHover implements ApplicationListener {
 	protected Hero hero;
 	
 	/** Properties for the drawing */
-	protected boolean displayDrawing = false;
+	protected Vector2 pointer;
+	protected boolean shouldCleanPointer = false;
+	public static final float POINTER_RADIUS = .01f;
 	protected List<Vector2> drawingPoints = new ArrayList<Vector2>();
 	
 	protected List<UserHill> userHills = new ArrayList<UserHill>();
@@ -108,7 +112,7 @@ public class LeapHover implements ApplicationListener {
 		float h = Gdx.graphics.getHeight();
 		
 		world = new World(GRAVITY, true);
-				
+
 		camera = new FollowCamera(1, h/w);
 		initialCameraPosition = new Vector3(camera.viewportWidth / 2f, camera.viewportHeight / 2f, 0f);
 
@@ -173,8 +177,6 @@ public class LeapHover implements ApplicationListener {
 		this.paused = false;
 		this.lost = false;
 		this.message = "";
-
-		// TODO: make sure all user lines (drawings) are cleared properly
 		
 		// Move to the very beginning of the level
 		Vector2 position = new Vector2(camera.viewportHeight / 3f, camera.viewportHeight);
@@ -202,7 +204,7 @@ public class LeapHover implements ApplicationListener {
 		this.paused = true;
 		this.lost = true;
 		
-		this.message = "You lost the game. Your scored : " + Math.round(score) + " points.";
+		this.message = "You just lost the game. Your scored : " + Math.round(score) + " points.";
 	}
 	
 	@Override
@@ -226,7 +228,8 @@ public class LeapHover implements ApplicationListener {
 		
 		if(!this.paused) {
 			hero.step();
-			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTATIVE_ZOOM_POW) + ADAPTATIVE_ZOOM_CONST;
+			camera.zoom = (float) Math.pow(hero.getBody().getPosition().y, ADAPTIVE_ZOOM_POW) + ADAPTIVE_ZOOM_CONST;
+			System.out.println("zoom: " + camera.zoom);
 			world.step(BOX_STEP, BOX_VELOCITY_ITERATIONS, BOX_POSITION_ITERATIONS);
 			
 			drawingStep();
@@ -245,8 +248,8 @@ public class LeapHover implements ApplicationListener {
 	}
 	
 	public void drawingStep() {
-		for(int i = 0; i < userHills.size(); i++) {
-			userHills.get(i).draw();
+		for (UserHill hill : userHills) {
+			hill.draw();
 		}
 	}
 	
@@ -271,10 +274,14 @@ public class LeapHover implements ApplicationListener {
 		hero.render(spriteBatch);
 		if (message.length() > 0)
 			displayFont.draw(spriteBatch, message, 100, 100);
-		
+
 		MessageDisplay.displayMessages(displayFont, spriteBatch);
 		
 		spriteBatch.end();
+
+		if (this.pointer != null) {
+			SimpleDrawer.drawCross(camera, pointer.x, pointer.y, POINTER_RADIUS, Color.RED);
+		}
 
 		debugRenderer.render(world, camera.combined);
 	}
@@ -310,7 +317,6 @@ public class LeapHover implements ApplicationListener {
 	public void validateDrawing() {
 		finishDrawing();
 		drawingPoints.clear();
-		setDisplayDrawing(false);
 	}
 
 	@Override
@@ -350,10 +356,11 @@ public class LeapHover implements ApplicationListener {
 	}
 
 	/**
-	 * Sets the displayDrawing parameter, used to know whether something should be drawn on the screen.
-	 * @param draw whether to draw
+	 * Sets the pointer parameter, used to know whether something should be drawn on the screen.
+	 * @param pointer where to draw the pointer (null for nowhere)
 	 */
-	public void setDisplayDrawing (boolean draw) {
-		this.displayDrawing = draw;
+	public void setPointer (Vector2 pointer) {
+		this.pointer = pointer;
 	}
+
 }

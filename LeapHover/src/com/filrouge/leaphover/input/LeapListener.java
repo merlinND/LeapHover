@@ -70,7 +70,7 @@ public abstract class LeapListener extends Listener
 			/*
 			 * Drawing
 			 */
-			if (drawingHand != null) {
+			if (drawingHand != null && drawingHand.isValid()) {
 				drawAnalysis(drawingHand);
 			}
 			else if (this.isDrawing) {
@@ -88,7 +88,7 @@ public abstract class LeapListener extends Listener
 				endHandDrawing();
 			}
 
-			noHand();
+    			noHand();
 		}
 	}
 
@@ -107,6 +107,13 @@ public abstract class LeapListener extends Listener
 			// Calculate the pointable front most Z coordinate
 			Vector frontPos = pointables.frontmost().tipPosition();
 			
+			boolean inBoundaries = isInBoundaries(frontPos);
+			
+			if (inBoundaries) {
+				// Display the position on the screen
+				pointerMove(new Vector2(frontPos.getX(), frontPos.getY()));
+			}
+			
 			/*
 			 * If there is a new touch (Z <= WALL_POSITION_Z)
 			 */
@@ -114,7 +121,7 @@ public abstract class LeapListener extends Listener
 				this.isDrawing = frontPos.getZ() <= WALL_POSITION_Z;
 				if (this.isDrawing) { // New touch
 
-					if (!isInBoundaries(frontPos)) {
+					if (!inBoundaries) {
 						this.isDrawing = false;
 						return;
 					}
@@ -127,14 +134,10 @@ public abstract class LeapListener extends Listener
 			}
 			
 			else {
-				double lastMeasure = 0;
-				float averageX = 0;
-				float averageY = 0;
-				
 				/*
 				 * If the drawing stopped (Z > WALL_POSITION_Z)
 				 */
-				if (frontPos.getZ() > WALL_POSITION_Z || !isInBoundaries(frontPos)) {
+				if (frontPos.getZ() > WALL_POSITION_Z || !inBoundaries) {
 					System.out.println("Stopped touching\n");
 					this.isDrawing = false;
 					// Notifies observers
@@ -142,18 +145,23 @@ public abstract class LeapListener extends Listener
 				}
 				
 				double currentTimeMs = System.currentTimeMillis();
-				
-				double oldSampleDuration = lastMeasure - this.timeLastPointMs;
-				double currentSampleDuration = currentTimeMs - this.timeLastPointMs;
-				double currentMeasureDuration = currentTimeMs - lastMeasure;
-				averageX = (float) (( oldSampleDuration*averageX + frontPos.getX()*currentMeasureDuration )/currentSampleDuration);
-				averageY = (float) (( oldSampleDuration*averageY + frontPos.getY()*currentMeasureDuration )/currentSampleDuration);
 				if (currentTimeMs - this.timeLastPointMs >= MIN_TIME_BETWEEN_POINTS_MS) {
 					this.timeLastPointMs = currentTimeMs;
 					this.handDraw(new Vector2(frontPos.getX(), frontPos.getY()));
 				}
 			}
 		}
+		else {
+			noPointer();
+		}
+	}
+
+	public boolean noPointer() {
+		return false;
+	}
+	
+	public boolean pointerMove (Vector2 frontMost) {
+		return false;
 	}
 
 	/**
@@ -183,7 +191,7 @@ public abstract class LeapListener extends Listener
 		return false;
 	}
 	
-	/**
+	/**`
 	 * Process variations of one hand's inclination
 	 * @param percent of rotation with respect to the negative z-axis ("pitch")
 	 * @return

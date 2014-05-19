@@ -157,6 +157,7 @@ public class UserHill {
 		nbOfVertices = 0;
 		if (this.physicHill != null) {
 			LeapHover.getInstance().getWorld().destroyBody(physicHill);
+			this.physicHill = null;
 		}
 	}
 }

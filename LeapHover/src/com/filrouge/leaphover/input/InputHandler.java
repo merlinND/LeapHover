@@ -86,7 +86,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	}
 	
 	public boolean newHandDrawing() {
-		this.game.setDisplayDrawing(true);
 		return false;
 	}
 	
@@ -155,6 +154,28 @@ public class InputHandler extends LeapListener implements InputProcessor {
 
 		this.game.addDrawPoint(new Vector2(x, y));
 		
+		return false;
+	}
+	
+	@Override
+	public boolean pointerMove (Vector2 frontMost) {
+		if (frontMost != null && game != null) {
+			float x = frontMost.x / (DETECTION_WIDTH / this.game.getCamera().viewportWidth),
+					y = frontMost.y / (DETECTION_HEIGHT / this.game.getCamera().viewportHeight);
+	
+			x += game.getCamera().position.x - INIT_POS_X;
+			y += game.getCamera().position.y - 2 * INIT_POS_Y;
+			
+			game.setPointer(new Vector2(x, y));
+		}
+		
+		return false;
+	}
+	
+	public boolean noPointer() {
+		if (this.game != null) {
+			game.setPointer(null);
+		}
 		return false;
 	}
 	
@@ -289,7 +310,6 @@ public class InputHandler extends LeapListener implements InputProcessor {
 					y += c.position.y - INIT_POS_Y;
 					
 					// TODO: impose a maximum on total drawing distance
-					this.game.setDisplayDrawing(true);
 					this.game.addDrawPoint(new Vector2(x, y));
 				}
 			}
