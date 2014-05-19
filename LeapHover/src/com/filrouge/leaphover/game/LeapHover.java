@@ -122,7 +122,6 @@ public class LeapHover implements ApplicationListener {
 		debugRenderer = new Box2DDebugRenderer();
 		spriteBatch = new SpriteBatch();
 		displayFont = new BitmapFont();
-		displayFont.setScale(3f);
 		
 		setupTestScene();
 	}
@@ -204,7 +203,7 @@ public class LeapHover implements ApplicationListener {
 		this.paused = true;
 		this.lost = true;
 		
-		this.message = "You just lost the game. Your scored : " + Math.round(score) + " points.";
+		this.message = "You just lost the game. Your scored " + Math.round(score) + " points.";
 	}
 	
 	@Override
@@ -276,12 +275,18 @@ public class LeapHover implements ApplicationListener {
 		
 		// UI
 		MessageDisplay.displayMessages(displayFont, spriteBatch);
+		displayFont.setScale(2f);
 		if (message.length() > 0) {
 			spriteBatch.begin();
-			displayFont.draw(spriteBatch, message, 75, 100);
+			displayFont.draw(spriteBatch, message, 225, 100);
 			spriteBatch.end();
 		}
-
+		if (score.getScore() > 10) {
+			spriteBatch.begin();
+			displayFont.draw(spriteBatch, "> " + Math.round(score.getScore()), 30, Gdx.graphics.getHeight() - 30);
+			spriteBatch.end();
+		}
+		
 		if (this.pointer != null) {
 			SimpleDrawer.drawCross(camera, pointer.x, pointer.y, POINTER_RADIUS, Color.RED);
 		}
