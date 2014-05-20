@@ -33,7 +33,7 @@ public class InputHandler extends LeapListener implements InputProcessor {
 	protected final int MAX_SAMPLE_NUMBER = 15;
 	protected final float INIT_POS_X = 0.5f;
 	protected final float INIT_POS_Y = 0.375f;
-	protected final float ANGLE_CONTRIBUTION_RATIO = 0.2f;
+	protected final float ANGLE_CONTRIBUTION_RATIO = 0.1f;
 	
 	/* 
 	 * METHODS

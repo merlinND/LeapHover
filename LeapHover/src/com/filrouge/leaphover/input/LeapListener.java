@@ -88,7 +88,7 @@ public abstract class LeapListener extends Listener
 				endHandDrawing();
 			}
 
-    			noHand();
+    		noHand();
 		}
 	}
 
@@ -179,8 +179,8 @@ public abstract class LeapListener extends Listener
 			handHeight(y / maxHeight);
 		}
 
-		//float angle = - motionHand.palmNormal().pitch();
-		//handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
+		float angle = - motionHand.palmNormal().pitch();
+		handInclination(angle / (float)(MAX_HAND_INCLINATION - MIN_HAND_INCLINATION));
 	}
 
 	/**
